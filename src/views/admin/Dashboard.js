@@ -15,10 +15,7 @@ import CardCalendar from "components/Cards/CardCalendar";
 export default function Dashboard() {
   const { token } = useContext(AuthContext);
   
-
-  // Check if the user is authenticated (has a valid token)
   if (!token) {
-    // Redirect to the login page if not authenticated
     return <Redirect to="/auth/login" />;
   }
 
@@ -26,17 +23,16 @@ export default function Dashboard() {
 
   return (
     <div>
-  <div className="flex flex-wrap mt-3">
-    <div className="w-full xl:w-6/12 mb-12 xl:mb-0 px-4">
-      <div className="T5">
-      <CardCalendar />
+      <div className="flex flex-wrap mt-3">
+        <div className="w-full xl:w-6/12 mb-12 xl:mb-0 px-4">
+          <div className="T5">
+          <CardCalendar />
+          </div>
+        </div>
+        <div className="w-full xl:w-6/12 px-4">
+          <CardSocialTraffic />
+        </div>
       </div>
-      
     </div>
-    <div className="w-full xl:w-6/12 px-4">
-      <CardSocialTraffic />
-    </div>
-  </div>
-</div>
   );
 }
