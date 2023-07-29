@@ -96,7 +96,7 @@ module.exports = {
     "disabled",
   ],
   plugins: [
-    require("@tailwindcss/forms"),
+    require("@tailwindcss/forms"),require("daisyui"),
     plugin(function ({ addComponents, theme }) {
       const screens = theme("screens", {});
       addComponents([
@@ -140,5 +140,5 @@ module.exports = {
         },
       ]);
     }),
-  ],
+  ]
 };

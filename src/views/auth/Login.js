@@ -92,7 +92,8 @@ export default function Login() {
         <div>
           <label htmlFor="username">Username:</label>
           <input
-          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+           className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+
            type="text"
           id="userName" // Change the id to match the backend model
           name="userName" // Change the name attribute to match the backend model
@@ -104,7 +105,8 @@ export default function Login() {
         <div>
           <label htmlFor="password">Password:</label>
           <input
-        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+            className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+
             type="password"
             id="password"
             name="password"
@@ -112,6 +114,7 @@ export default function Login() {
             onChange={handleInputChange}
           />
         </div>
+        <br></br>
         <button className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                        type="submit">Login</button>
       </form>
