@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createPopper } from "@popperjs/core";
+import { AuthContext } from "contexts/AuthContext";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const UserDropdown = () => {
   // dropdown props
@@ -15,6 +17,16 @@ const UserDropdown = () => {
   const closeDropdownPopover = () => {
     setDropdownPopoverShow(false);
   };
+  const history = useHistory();
+
+  const { logout } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    logout();
+    
+    history.push('/auth/login');
+  };
+
   return (
     <>
       <a
@@ -43,23 +55,15 @@ const UserDropdown = () => {
           "bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow-lg min-w-48"
         }
       >
+        
         <a
           href="#pablo"
           className={
             "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
           }
-          onClick={(e) => e.preventDefault()}
+          onClick={handleLogout}
         >
-          Action
-        </a>
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Another action
+          Logout
         </a>
         <a
           href="#pablo"

@@ -10,14 +10,10 @@ export default function CardPatients({ color }) {
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
-  const [refreshData, setRefreshData] = useState(false);
   const apiInstance = createApiInstance(token);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
-    if (!token) {
-      return;
-    }
-
     apiInstance
       .get("api/patients")
       .then((response) => {
@@ -26,7 +22,7 @@ export default function CardPatients({ color }) {
       .catch((error) => {
         console.error(error);
       });
-  }, [apiInstance, token, refreshData]);
+  }, []);
 
   useEffect(() => {
     setFilteredPatients(patients);
@@ -53,13 +49,13 @@ export default function CardPatients({ color }) {
       apiInstance
         .delete(`/api/patients/${patientId}`)
         .then((response) => {
-          console.log("Patient deleted successfully:", response.data);
+          console.log(response.data);
           setFilteredPatients((prevPatients) =>
             prevPatients.filter((patient) => patient.id_patient !== patientId)
           );
         })
         .catch((error) => {
-          console.error("Error deleting patient:", error);
+          console.error(error);
         });
     }
   };
@@ -73,14 +69,31 @@ export default function CardPatients({ color }) {
   };
 
   const handleAddPatientSuccess = () => {
-    setRefreshData(true);
     setIsAddPatientOpen(false);
+    apiInstance
+      .get("api/patients")
+      .then((response) => {
+        setPatients(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const showNotification = (message, type = "success") => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000);
   };
 
   return (
     <div>
-      {isAddPatientOpen ? ( 
-        <CardAddPatient onClose={() => setIsAddPatientOpen(false)} onAddSuccess={handleAddPatientSuccess}/>
+      {isAddPatientOpen ? (
+        <CardAddPatient
+          onClose={handleCloseAddPatient}
+          onAddSuccess={handleAddPatientSuccess}
+        />
       ) : (
         <div
           className={
@@ -112,126 +125,126 @@ export default function CardPatients({ color }) {
           </div>
           <div className="block w-full overflow-x-auto">
             <table className="items-center w-full bg-transparent border-collapse">
-          <thead>
-            <tr>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              >
-                CIN
-              </th>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              >
-                Nom et prénom
-              </th>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              >
-                Date de naissance
-              </th>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              >
-                Vérifié
-              </th>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              ></th>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              ></th>
-              <th
-                className={
-                  "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                  (color === "light"
-                    ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                    : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                }
-              ></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPatients.map((patient) => (
-              <tr key={patient.id_patient}>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  {patient.cin || "-"}
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  {patient.nom && patient.prenom
-                    ? `${patient.nom} ${patient.prenom}`
-                    : "-"}
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  {patient.date_de_naissance || "-"}
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  {patient.verifie === 0 && (
-                    <i
-                      className="fas fa-circle mr-2 text-lg"
-                      style={{ color: "red", marginRight: "8px" }}
-                    ></i>
-                  )}
-                  {patient.verifie === 1 && (
-                    <i
-                      className="fas fa-circle mr-2 text-lg"
-                      style={{ color: "orange", marginRight: "8px" }}
-                    ></i>
-                  )}
-                  {patient.verifie === 2 && (
-                    <i
-                      className="fas fa-circle mr-2 text-lg"
-                      style={{ color: "green", marginRight: "8px" }}
-                    ></i>
-                  )}
-                </td>
-                <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  <i className="fas fa-calendar-plus mr-2 text-lg"></i>
-                </td>
-                <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  <i className="fas fa-eye mr-2 text-lg"></i>
-                </td>
-                <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                <button
-                    className="focus:outline-none"
-                    onClick={() => handleDeletePatient(patient.id_patient)}
+              <thead>
+                <tr>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
                   >
-                    <i className="fas fa-trash-alt mr-2 text-lg text-red-500"></i>
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          </table>
+                    CIN
+                  </th>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
+                  >
+                    Nom et prénom
+                  </th>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
+                  >
+                    Date de naissance
+                  </th>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
+                  >
+                    Vérifié
+                  </th>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
+                  ></th>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
+                  ></th>
+                  <th
+                    className={
+                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
+                      (color === "light"
+                        ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                        : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    }
+                  ></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPatients.map((patient) => (
+                  <tr key={patient.id_patient}>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      {patient.cin || "-"}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      {patient.nom && patient.prenom
+                        ? `${patient.nom} ${patient.prenom}`
+                        : "-"}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      {patient.date_de_naissance || "-"}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      {patient.verifie === 0 && (
+                        <i
+                          className="fas fa-circle mr-2 text-lg"
+                          style={{ color: "red", marginRight: "8px" }}
+                        ></i>
+                      )}
+                      {patient.verifie === 1 && (
+                        <i
+                          className="fas fa-circle mr-2 text-lg"
+                          style={{ color: "orange", marginRight: "8px" }}
+                        ></i>
+                      )}
+                      {patient.verifie === 2 && (
+                        <i
+                          className="fas fa-circle mr-2 text-lg"
+                          style={{ color: "green", marginRight: "8px" }}
+                        ></i>
+                      )}
+                    </td>
+                    <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      <i className="fas fa-calendar-plus mr-2 text-lg"></i>
+                    </td>
+                    <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      <i className="fas fa-eye mr-2 text-lg"></i>
+                    </td>
+                    <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                      <button
+                        className="focus:outline-none"
+                        onClick={() => handleDeletePatient(patient.id_patient)}
+                      >
+                        <i className="fas fa-trash-alt mr-2 text-lg text-red-500"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

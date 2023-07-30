@@ -10,6 +10,10 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
   const [showSearchResults, setShowSearchResults] = useState(true);
+  const [searchResults, setSearchResults] = useState([]);
+  const [setSelectedFatherId] = useState("");
+  const [isFatherSelected, setIsFatherSelected] = useState(false);
+  const searchTimerRef = useRef(null);
   const [userData, setUserData] = useState({
     email: "",
     nom: "",
@@ -29,8 +33,12 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   });
 
   const combineDateInputs = (day, month, year) => {
-    if (day && month && day !== 0 && month !== 0) {
+    if ((day || day !== 0) && (month || month !== 0)) {
       return `${day}-${month}-${year}`;
+    } else if (day || day !== 0) {
+      return `${month}-${year}`;
+    }  else if (month || month !== 0) {
+      return `${year}`;
     } else {
       return `${year}`;
     }
@@ -72,6 +80,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     });
   };
 
+  
   const fileInputRef = useRef(null);
 
   const handlePhotoCINUpload = () => {
@@ -91,95 +100,73 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       reader.readAsDataURL(file);
     }
   };
-
-  const handleTakePhoto = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const video = document.createElement("video");
-      video.srcObject = mediaStream;
-      video.onloadedmetadata = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-        const photoUrl = canvas.toDataURL();
-        setUserData({
-          ...userData,
-          photo_cin: photoUrl,
-        });
-        mediaStream.getTracks().forEach((track) => track.stop());
-      };
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-    }
-  };
-
+  
+  
   const handleSubmit = (event) => {
     event.preventDefault();
-  if (!userData.nom.trim() || !userData.prenom.trim()) {
-    setShowAlert(true);
-    setAlertType("error");
-    setAlertMessage("Nom et prénom sont obligatoires !");
-    return;
-  }
+    if (!userData.nom.trim() || !userData.prenom.trim()) {
+      setShowAlert(true);
+      setAlertType("error");
+      setAlertMessage("Nom et prénom sont obligatoires !");
+      return;
+    }
 
-  if (
-    (userData.day !== "" ||
-    userData.month !== "" )&&
-    (userData.year === "" || userData.year === "0")
-  ) {
-    setShowAlert(true);
-    setAlertType("error");
-    setAlertMessage("Completez la date de naissance !");
-    return;
-  }
+    const photoCinBase64 = userData.photo_cin.split(",")[1];
+
   apiInstance
-  .post("/api/patients/", userData)
-  .then((response) => {
-    console.log("Patient added successfully:", response.data);
-    setShowAlert(true);
-    setAlertType("success");
-    onAddSuccess(); 
-  })
-  .catch((error) => {
-    console.error("Error adding patient:", error);
-    setShowAlert(true);
-    setAlertType("error");
-    setAlertMessage("Error adding patient. Please try again.");
-  });
-  };
-
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedFatherId, setSelectedFatherId] = useState("");
-  const [isFatherSelected, setIsFatherSelected] = useState(false);
+    .post("/api/patients/", { ...userData, photo_cin: photoCinBase64 })
+    .then((response) => {
+      console.log(response.data);
+      onAddSuccess();
+    })
+    .catch((error) => {
+      console.error(error);
+      setShowAlert(true);
+      setAlertType("error");
+      setAlertMessage("Problème technique !");
+    });
+};
 
   const handleSearchFather = (event) => {
     const { value } = event.target;
     setSearchFieldValue(value);
+
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current);
+    }
+
     if (value.trim() !== "") {
-      // Perform the search only if the search field is not empty
-      apiInstance
-        .get(`/api/patients`)
-        .then((response) => {
-          const filteredResults = response.data.filter(
-            (father) =>
-              `${father.nom} ${father.prenom}`.toLowerCase().includes(value.toLowerCase())
-          );
-          setSearchResults(filteredResults);
-          setShowSearchResults(true);
-        })
-        .catch((error) => {
-          console.error("Error searching for father:", error);
-        });
+      searchTimerRef.current = setTimeout(() => {
+        apiInstance
+          .get(`/api/patients`)
+          .then((response) => {
+            const filteredResults = response.data.filter(
+              (father) =>
+                `${father.nom} ${father.prenom}`.toLowerCase().includes(value.toLowerCase())
+            );
+            setSearchResults(filteredResults);
+            setShowSearchResults(true);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }, 500);
     } else {
-      // If the search field is empty, clear the search results
       setSearchResults([]);
       setShowSearchResults(false);
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleSelectFather = (father) => {
-    setSelectedFatherId(father.id_patient); // Store the ID of the selected father
+    setSelectedFatherId(father.id_patient);
     setUserData({
       ...userData,
       id_parent: father.id_patient,
@@ -187,24 +174,22 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     setSearchResults([]);
     setShowSearchResults(false);
     setSearchFieldValue(`${father.nom} ${father.prenom}`);
-    setIsFatherSelected(true); // Set the isFatherSelected state to true when a father is selected
+    setIsFatherSelected(true);
   };
 
   const handleRemoveFather = () => {
-    setSelectedFatherId(null); // Reset the selected father ID
+    setSelectedFatherId(null);
     setUserData({
       ...userData,
       id_parent: "",
     });
-    setIsFatherSelected(false); // Reset the isFatherSelected state
-    setSearchFieldValue(""); // Clear the input field
+    setIsFatherSelected(false);
+    setSearchFieldValue("");
   };
 
   const fieldsNotEmpty = useRef(false);
   useEffect(() => {
-    const hasFieldsNotEmpty = Object.values(userData).some(
-      (value) => value && typeof value === "string"
-    );
+    const hasFieldsNotEmpty = Object.values(userData).some((value) => value && typeof value === "string");
     fieldsNotEmpty.current = hasFieldsNotEmpty;
   }, [userData]);
 
@@ -222,9 +207,6 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
-
-
-  
 
   return (
     <>
@@ -253,7 +235,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                 >
                   Type de Patient
                 </label>
-                <div>
+                <div className="relative w-full mb-3">
                   <label className="mr-2">
                     <input
                       type="radio"
@@ -317,26 +299,27 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                     CIN
                   </label>
                   <div className="flex items-center">
-                    <input
-                      type="text"
-                      name="cin"
-                      onChange={handleChange}
-                      className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring lg:w-8/12 ease-linear transition-all duration-150"
-                    />
-                    <div className="flex ml-2">
-                      <div
-                        className="clickable-icon"
-                        onClick={handlePhotoCINUpload}
-                      >
-                        <i className="fas fa-upload px-4"></i>
-                      </div>
-                      <div
-                        className="clickable-icon ml-2"
-                        onClick={handleTakePhoto}
-                      >
-                        <i className="fas fa-camera"></i>
-                      </div>
+                  <input
+                    type="text"
+                    name="cin"
+                    onChange={handleChange}
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  />
+                  <div className="flex items-center">
+                    <div className="clickable-icon" onClick={handlePhotoCINUpload}>
+                      <i className="fas fa-upload px-4"></i>
                     </div>
+                  </div>
+                <input
+                  type="file"
+                  name="photo_cin"
+                  onChange={handleFileInputChange}
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  capture="user"
+                  required
+                />
                   </div>
                   <input
                     type="file"
@@ -357,21 +340,22 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                   )}
                 </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                  htmlFor="date_de_naissance"
-                >
-                  Date de naissance
-                </label>
-                <div className="flex items-center">
+                      <div className="w-full lg:w-4/12 px-4">
+                        <label
+                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                          htmlFor="date_de_naissance"
+                        >
+                          Date de naissance
+                        </label>
+                        <div className="relative w-full mb-3">
                   <input
                     type="number"
                     name="day"
                     placeholder="Jour"
                     value={userData.day}
                     onChange={handleChange}
-                    className="border-0 px-3 py-3 text-center placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-16 md:w-10 lg:w-14 xl:w-16 ease-linear transition-all duration-150 mr-1"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1"
+                    style={{ width: "24%" }}
                   />
                   <input
                     type="number"
@@ -379,7 +363,8 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                     placeholder="Moi"
                     value={userData.month}
                     onChange={handleChange}
-                    className="border-0 px-3 py-3 text-center placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-16 md:w-10 lg:w-14 xl:w-16 ease-linear transition-all duration-150 ml-1 mr-1"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1 m-1"
+                    style={{ width: "24%" }}
                   />
                   <input
                     type="number"
@@ -387,11 +372,13 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                     placeholder="Année"
                     value={userData.year}
                     onChange={handleChange}
-                    className="border-0 px-3 py-3 text-center placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-24 md:w-20 lg:w-24 xl:w-28 ease-linear transition-all duration-150 ml-1"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150"
+                    style={{ width: "49%" }}
                   />
                 </div>
               </div>
               <div className="w-full lg:w-4/12 px-4">
+              <div className="relative w-full mb-3">
                 <label
                   className="block uppercase text-blueGray-600 text-xs font-bold mb-4"
                   htmlFor="sexe"
@@ -420,6 +407,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                     Femme
                   </label>
                 </div>
+              </div>
               </div>
               <div className="w-full lg:w-4/12 px-4">
                 <div className="relative w-full mb-3">
@@ -470,6 +458,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                 </div>
               </div>
               <div className="w-full lg:w-4/12 px-4">
+              <div className="relative w-full mb-3">
                 <label
                   className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                   htmlFor="mutuelle"
@@ -484,6 +473,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                   <option value="CNSS">CNSS</option>
                   <option value="CNOPS">CNOPS</option>
                 </select>
+              </div>
               </div>
               <div className="w-full lg:w-4/12 px-4">
         <div className="relative w-full mb-3">
@@ -503,7 +493,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
             />
             {isFatherSelected && (
               <div
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                className="absolute right-0 top-0 flex items-center h-full cursor-pointer px-4"
                 onClick={handleRemoveFather}
               >
                 <i className="fas fa-times text-red-500"></i>
@@ -535,18 +525,14 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
             </button>
             </div>  
             {showAlert && (
-              <div >
-                {alertType === "success" ? (
-                  <i className="fa fa-check-circle mr-2"></i>
-                ) : (
-                  <i className="fa fa-times-circle mr-2"></i>
-                )}
-                {alertMessage}
-              </div>
+              <div>
+              {alertType === "error" && <i className="fa fa-times-circle mr-2"></i>}
+              {alertMessage}
+            </div>
             )}
           </form>
         </div>
-      </div>
+      </div>  
     </>
   );
 }
