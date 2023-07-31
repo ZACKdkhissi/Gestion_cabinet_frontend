@@ -11,7 +11,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   const apiInstance = createApiInstance(token);
   const [showSearchResults, setShowSearchResults] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
-  const [setSelectedFatherId] = useState("");
+  const [selectedFatherId, setSelectedFatherId] = useState("");
   const [isFatherSelected, setIsFatherSelected] = useState(false);
   const searchTimerRef = useRef(null);
   const [userData, setUserData] = useState({
@@ -127,65 +127,50 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     });
 };
 
-  const handleSearchFather = (event) => {
-    const { value } = event.target;
-    setSearchFieldValue(value);
-
-    if (searchTimerRef.current) {
-      clearTimeout(searchTimerRef.current);
-    }
-
-    if (value.trim() !== "") {
-      searchTimerRef.current = setTimeout(() => {
-        apiInstance
-          .get(`/api/patients`)
-          .then((response) => {
-            const filteredResults = response.data.filter(
-              (father) =>
-                `${father.nom} ${father.prenom}`.toLowerCase().includes(value.toLowerCase())
-            );
-            setSearchResults(filteredResults);
-            setShowSearchResults(true);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }, 500);
-    } else {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (searchTimerRef.current) {
-        clearTimeout(searchTimerRef.current);
-      }
-    };
-  }, []);
-
-  const handleSelectFather = (father) => {
-    setSelectedFatherId(father.id_patient);
-    setUserData({
-      ...userData,
-      id_parent: father.id_patient,
-    });
+const handleSearchFather = (event) => {
+  const { value } = event.target;
+  setSearchFieldValue(value);
+  if (value.trim() !== "") {
+    apiInstance
+      .get(`/api/patients`)
+      .then((response) => {
+        const filteredResults = response.data.filter(
+          (father) =>
+            `${father.nom} ${father.prenom}`.toLowerCase().includes(value.toLowerCase())
+        );
+        setSearchResults(filteredResults);
+        setShowSearchResults(true);
+      })
+      .catch((error) => {
+        console.error("Error searching for father:", error);
+      });
+  } else {
     setSearchResults([]);
     setShowSearchResults(false);
-    setSearchFieldValue(`${father.nom} ${father.prenom}`);
-    setIsFatherSelected(true);
-  };
+  }
+};
 
-  const handleRemoveFather = () => {
-    setSelectedFatherId(null);
-    setUserData({
-      ...userData,
-      id_parent: "",
-    });
-    setIsFatherSelected(false);
-    setSearchFieldValue("");
-  };
+const handleSelectFather = (father) => {
+  setSelectedFatherId(father.id_patient);
+  setUserData({
+    ...userData,
+    id_parent: father.id_patient,
+  });
+  setSearchResults([]);
+  setShowSearchResults(false);
+  setSearchFieldValue(`${father.nom} ${father.prenom}`);
+  setIsFatherSelected(true);
+};
+
+const handleRemoveFather = () => {
+  setSelectedFatherId(null);
+  setUserData({
+    ...userData,
+    id_parent: "",
+  });
+  setIsFatherSelected(false);
+  setSearchFieldValue("");
+};
 
   const fieldsNotEmpty = useRef(false);
   useEffect(() => {
@@ -208,6 +193,16 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     };
   }, []);
 
+  const handleKeyUp = (event) => {
+    const { name, value } = event.target;
+    if (name === "nom" || name === "prenom") {
+      setUserData((prevUserData) => ({
+        ...prevUserData,
+        [name]: value.toUpperCase(),
+      }));
+    }
+  };
+
   return (
     <>
       <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-100 border-0">
@@ -219,8 +214,8 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
               </h6>
             </div>
             <div className="lg:w-1/12">
-              <button onClick={onClose} className="focus:outline-none">
-                <i className="fas fa-arrow-left"></i>
+            <button onClick={onClose} className="focus:outline-none">
+                <i className="fas fa-arrow-right"></i>
               </button>
             </div>
           </div>
@@ -269,8 +264,9 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                   <input
                     type="text"
                     onChange={handleChange}
+                    onKeyUp={handleKeyUp}
                     name="nom"
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
                   />
                 </div>
               </div>
@@ -285,8 +281,9 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                   <input
                     type="text"
                     name="prenom"
+                    onKeyUp={handleKeyUp}
                     onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
                   />
                 </div>
               </div>
@@ -391,7 +388,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                       type="radio"
                       name="sexe"
                       value="Male"
-                      checked={userData.sexe === "Male"}
+                      checked={userData.sexe === "Homme"}
                       onChange={handleSexeChange}
                     />
                     Homme
@@ -401,7 +398,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
                       type="radio"
                       name="sexe"
                       value="Female"
-                      checked={userData.sexe === "Female"}
+                      checked={userData.sexe === "Femme"}
                       onChange={handleSexeChange}
                     />
                     Femme
@@ -481,7 +478,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
             className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
             htmlFor="father_search"
           >
-            Rechercher le Père
+            Lien de parenté
           </label>
           <div className="relative">
             <input
@@ -489,6 +486,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
               name="father_search"
               onChange={handleSearchFather}
               value={searchFieldValue}
+              placeholder="Chercher le père ou la mère"
               className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
             />
             {isFatherSelected && (
