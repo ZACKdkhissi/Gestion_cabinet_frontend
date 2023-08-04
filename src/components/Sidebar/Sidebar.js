@@ -1,4 +1,3 @@
-/*eslint-disable*/
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
@@ -85,10 +84,12 @@ export default function Sidebar() {
                 </div>
               </div>
             </div>
-            {(isSecretaire ||isDocteur) && (
+            
               <div>
-                <hr className="my-4 md:min-w-full" />
                 <ul className="md:flex-col md:min-w-full flex flex-col list-none">
+                {(isSecretaire ||isDocteur) && (
+                <div>
+                <hr className="my-4 md:min-w-full" />
                 <li className="items-center">
                   <Link
                     className={
@@ -132,8 +133,10 @@ export default function Sidebar() {
                     Gestion Patient
                   </Link>
                 </li>
-                <hr className="my-4 md:min-w-full" />
+                </div>
+                )}
             {isAdmin &&(
+              <div><hr className="my-4 md:min-w-full" />
         <li className="items-center">
           <Link
             className={
@@ -155,10 +158,10 @@ export default function Sidebar() {
             Utilisateurs
           </Link>
         </li>
+        </div>
         )}
               </ul>
               </div>
-            )}
           </div>
           <hr className="my-4 md:min-w-full" />
             <button onClick={handleLogout}>

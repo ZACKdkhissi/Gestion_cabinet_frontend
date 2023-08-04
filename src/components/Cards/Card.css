@@ -143,5 +143,43 @@
   }
   
   /* ... (additional CSS code) */
+
+
+  /* CSS pour l'alerte */
+.alert {
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* CSS pour l'alerte de succès */
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Styles pour les lignes réservées */
+.reserved-row {
+  background-color: #f0f0f0; /* Couleur de fond pour les lignes réservées */
+  font-weight: bold; /* Police en gras pour les lignes réservées */
+}
+
+
+/* CSS pour l'alerte d'erreur */
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.w1{
+  width: 6cm;
+}
+.w2{
+  width: 1.5cm;
+}
+
   
   
