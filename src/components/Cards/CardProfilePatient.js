@@ -1,55 +1,35 @@
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { AuthContext } from "contexts/AuthContext";
-import createApiInstance from "api/api";
 
 export default function CardProfilePatient({ patient, onClose }) {
-  const { token } = useContext(AuthContext);
-  const apiInstance = createApiInstance(token);
-  const [parent, setParent] = useState(null);
 
-  useEffect(() => {
-    const fetchParentData = async (parentId) => {
-      try {
-        const response = await apiInstance.get(`api/patients/${parentId}`);
-        setParent(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    if (patient.id_parent) {
-      fetchParentData(patient.id_parent);
-    }
-  }, [patient.id_parent, apiInstance]);
-
- 
+    
   return (
     <>
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg ">
-      <div className="flex flex-wrap text-center">
-        <div className="relative mt-2 mb-2">
+        <div className="text-center mt-5">
         {patient.photo_cin && (
             <img
               src={`data:image/jpeg;base64,${patient.photo_cin}`}
-              className="mx-auto shadow-lg lg:w-4/12"
+              alt="Patient's photo"
+              className="w-30 h-30 mx-auto shadow-lg lg:w-4/12"
             />
           )}
+            <h3 className="text-xl font-semibold leading-normal text-blueGray-700 mt-5">
+            {patient.nom} {patient.prenom}
+            </h3>
             </div>
-            <div className="flex flex-wrap text-center">
-            <div className="relative w-1/2 text-blueGray-600 lg:w-4/12">
-            <span className="font-semibold uppercase">{patient.nom} {patient.prenom}</span>
-            </div>
-            <div className="relative w-1/2 text-blueGray-600 lg:w-4/12">
+            <div className="flex flex-wrap py-4 text-center">
+            <div className="relative w-full mb-3 text-blueGray-600">
                 Patient N° <span className="font-semibold uppercase">{patient.code_patient || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600 lg:w-4/12">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Type: <span className="font-semibold uppercase">{patient.type_patient || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600 lg:w-4/12">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 CIN: <span className="font-semibold uppercase">{patient.cin || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600 lg:w-4/12">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
             Vérifié: {patient.verifie === 0 && (
                       <i
                         className="fas fa-circle mr-2 text-lg"
@@ -69,34 +49,31 @@ export default function CardProfilePatient({ patient, onClose }) {
                       ></i>
                     )}
             </div>
-            <div className="relative w-1/2  text-blueGray-600  lg:w-4/12 mb-1">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Date de naissance: <span className="font-semibold uppercase">{patient.date_de_naissance || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600  lg:w-4/12 mb-1">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Sexe: <span className="font-semibold uppercase">{patient.sexe || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600  lg:w-4/12 mb-1">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Telephone: <span className="font-semibold uppercase">{patient.telephone || "-"}</span>
             </div>
-            <div className="relative w-full  text-blueGray-600  lg:w-4/12 mb-1">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Email: <span className="font-semibold">{patient.email || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600  lg:w-4/12 mb-1">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Ville: <span className="font-semibold uppercase">{patient.ville || "-"}</span>
             </div>
-            <div className="relative w-1/2  text-blueGray-600  lg:w-4/12 mb-1">
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Mutuelle: <span className="font-semibold uppercase">{patient.mutuelle || "-"}</span>
             </div>
-            {parent && (
-            <div className="relative w-1/2 mb-1 text-blueGray-600 lg:w-4/12 mb-1">
-                Lien de parenté: <span className="font-semibold uppercase">{parent.nom || "-"} {parent.prenom || "-"}</span>
+            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
+                Lien de parenté: <span className="font-semibold uppercase">{patient.id_parent || "-"}</span>
             </div>
-            )}
           </div>
-          </div>
-          <div className="lg:w-1/12 text-center mt-3 mb-1">
+          <div className="lg:w-1/12 text-center mt-3 mb-3">
             <button onClick={onClose} className="focus:outline-none">
-                <i className="fas fa-arrow-left"></i>
+                <i className="fas fa-arrow-right"></i>
               </button>
             </div>
       </div>

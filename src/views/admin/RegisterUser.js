@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
-
-// components
-
+import CardSettings from "components/Cards/CardSettings.js";
+import CardProfile from "components/Cards/CardProfile.js";
 import CardRegister from "components/Cards/CardRegister";
 import { AuthContext } from "contexts/AuthContext";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
