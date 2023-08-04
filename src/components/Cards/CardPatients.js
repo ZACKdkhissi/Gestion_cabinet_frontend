@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
+import { differenceInYears} from "date-fns";
+import CardAddSansrdv from "./CardAddSansrdv";
 
 export default function CardPatients({ color, onOpenAddPatient, onViewProfile }) {
   const { token } = useContext(AuthContext);
@@ -9,6 +11,8 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const apiInstance = createApiInstance(token);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
   useEffect(() => {
     apiInstance
@@ -61,8 +65,22 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
     onViewProfile(patient);
   };
 
+  function parseDateFromString(dateString) {
+    const parts = dateString.split("-");
+    const parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+    return parsedDate;
+  }
+
+  const handleToggleAppointmentModal = (patient) => {
+    setSelectedPatient(patient);
+    setShowAppointmentModal(!showAppointmentModal);
+  };
+
   return (
     <div>
+      {showAppointmentModal && (
+            <CardAddSansrdv onClose={() => setShowAppointmentModal(false)} patient={selectedPatient} />
+      )}
       <div
         className={
           "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
@@ -103,16 +121,6 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
                       : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                   }
                 >
-                  CIN
-                </th>
-                <th
-                  className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                  }
-                >
                   Nom et prénom
                 </th>
                 <th
@@ -123,7 +131,7 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
                       : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                   }
                 >
-                  Date de naissance
+                  Age
                 </th>
                 <th
                   className={
@@ -133,7 +141,7 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
                       : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                   }
                 >
-                  Vérifié
+                  Date de naissance
                 </th>
                 <th
                   className={
@@ -162,42 +170,29 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
               </tr>
             </thead>
             <tbody>
-              {filteredPatients.map((patient) => (
+              {filteredPatients.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((patient) => {
+                const createdDate = new Date(patient.created_at);
+                const twoDaysAgo = new Date();
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2); 
+                const isNewPatient = createdDate >= twoDaysAgo;
+                const dateOfBirth = parseDateFromString(patient.date_de_naissance);
+                const age = differenceInYears(new Date(), dateOfBirth);return (
                 <tr key={patient.id_patient}>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    {patient.cin || "-"}
-                  </td>
                   <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
                     {patient.nom && patient.prenom
                       ? `${patient.nom} ${patient.prenom}`
                       : "-"}
                   </td>
                   <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    {patient.date_de_naissance || "-"}
+                    {age || "-"}
                   </td>
                   <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    {patient.verifie === 0 && (
-                      <i
-                        className="fas fa-circle mr-2 text-lg"
-                        style={{ color: "red", marginRight: "8px" }}
-                      ></i>
-                    )}
-                    {patient.verifie === 1 && (
-                      <i
-                        className="fas fa-circle mr-2 text-lg"
-                        style={{ color: "orange", marginRight: "8px" }}
-                      ></i>
-                    )}
-                    {patient.verifie === 2 && (
-                      <i
-                        className="fas fa-circle mr-2 text-lg"
-                        style={{ color: "green", marginRight: "8px" }}
-                      ></i>
-                    )}
+                    {patient.date_de_naissance || "-"}
                   </td>
                   <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
                     <button
                     className="focus:outline-none"
+                    onClick={() => handleToggleAppointmentModal(patient)}
                     >
                     <i className="fas fa-calendar-plus text-lg"></i>
                     </button>
@@ -217,9 +212,18 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
                     >
                       <i className="fas fa-trash-alt mr-2 text-lg text-red-500"></i>
                     </button>
+                    {isNewPatient && (
+                        <span
+                        className="text-red-500"
+                        style={{ fontSize: "20px", marginLeft: "4px" }}
+                      >
+                        *
+                      </span>
+                      )}
                   </td>
                 </tr>
-              ))}
+                );
+                  })}
             </tbody>
           </table>
         </div>

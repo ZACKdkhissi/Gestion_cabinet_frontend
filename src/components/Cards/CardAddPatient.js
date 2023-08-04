@@ -13,12 +13,11 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedFatherId, setSelectedFatherId] = useState("");
   const [isFatherSelected, setIsFatherSelected] = useState(false);
-  const searchTimerRef = useRef(null);
   const [userData, setUserData] = useState({
     email: "",
     nom: "",
     prenom: "",
-    sexe: "Male",
+    sexe: "Homme",
     type_patient: "provisoire",
     cin: "",
     photo_cin: "",
@@ -33,15 +32,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   });
 
   const combineDateInputs = (day, month, year) => {
-    if ((day || day !== 0) && (month || month !== 0)) {
-      return `${day}-${month}-${year}`;
-    } else if (day || day !== 0) {
-      return `${month}-${year}`;
-    }  else if (month || month !== 0) {
-      return `${year}`;
-    } else {
-      return `${year}`;
-    }
+      return `${day || 0}-${month || 0}-${year}`;
   };
 
   const handleChange = (event) => {
@@ -207,17 +198,15 @@ const handleRemoveFather = () => {
     <>
       <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-100 border-0">
         <div className="rounded-t bg-white mb-0 px-4 py-3">
-          <div className="text-center flex justify-between">
-            <div className="lg:w-1/12">
+          <div className="text-center flex">
+          <div className=" mr-4">
+            <button onClick={onClose} className="focus:outline-none">
+                <i className="fas fa-arrow-left"></i>
+              </button>
+            </div>
               <h6 className="text-blueGray-700 text-xl font-bold">
                 Ajouter un Patient
               </h6>
-            </div>
-            <div className="lg:w-1/12">
-            <button onClick={onClose} className="focus:outline-none">
-                <i className="fas fa-arrow-right"></i>
-              </button>
-            </div>
           </div>
         </div>
         <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
@@ -387,7 +376,7 @@ const handleRemoveFather = () => {
                     <input
                       type="radio"
                       name="sexe"
-                      value="Male"
+                      value="Homme"
                       checked={userData.sexe === "Homme"}
                       onChange={handleSexeChange}
                     />
@@ -397,7 +386,7 @@ const handleRemoveFather = () => {
                     <input
                       type="radio"
                       name="sexe"
-                      value="Female"
+                      value="Femme"
                       checked={userData.sexe === "Femme"}
                       onChange={handleSexeChange}
                     />
