@@ -1,11 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext} from "react";
 import "./f1.css"
 
 // components
 
-import CardLineChart from "components/Cards/CardLineChart.js";
-import CardBarChart from "components/Cards/CardBarChart.js";
-import CardPageVisits from "components/Cards/CardPageVisits.js";
 import CardSocialTraffic from "components/Cards/CardSocialTraffic.js";
 import { AuthContext } from "contexts/AuthContext";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
