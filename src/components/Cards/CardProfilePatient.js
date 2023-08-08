@@ -1,17 +1,49 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { AuthContext } from "contexts/AuthContext";
+import createApiInstance from "api/api";
 
-export default function CardProfilePatient({ patient, onClose }) {
 
-    
+export default function CardProfilePatient({ patient, onClose, onEdit }) {
+
+  const { token } = useContext(AuthContext);
+  const apiInstance = createApiInstance(token);
+  const [father, setFather] = useState(null);
+
+  useEffect(() => {
+    if (patient.id_parent) {
+      apiInstance
+        .get(`/api/patients/${patient.id_parent}`)
+        .then((response) => {
+          setFather(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching father's information:", error);
+        });
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patient.id_parent]);
+  
   return (
     <>
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg ">
+      <button 
+          className="absolute left-0 px-4 py-3 focus:outline-none"
+          onClick={onClose} 
+      >
+          <i className="fas fa-arrow-left"></i>
+      </button>
+      <button
+          className="absolute right-0 px-4 py-3 focus:outline-none"
+          onClick={() => onEdit(patient)}
+        >
+          <i className="fas fa-pen"></i>
+        </button>
         <div className="text-center mt-5">
         {patient.photo_cin && (
             <img
               src={`data:image/jpeg;base64,${patient.photo_cin}`}
-              alt="Patient's photo"
+              alt={`${patient.nom}_${patient.prenom}`}
               className="w-30 h-30 mx-auto shadow-lg lg:w-4/12"
             />
           )}
@@ -67,15 +99,12 @@ export default function CardProfilePatient({ patient, onClose }) {
             <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
                 Mutuelle: <span className="font-semibold uppercase">{patient.mutuelle || "-"}</span>
             </div>
-            <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
-                Lien de parenté: <span className="font-semibold uppercase">{patient.id_parent || "-"}</span>
-            </div>
+            {patient.id_parent && (
+          <div className="relative w-full mb-3 text-blueGray-600 mt-3 lg:w-4/12">
+            Lien de parenté: <span className="font-semibold uppercase">{father ? `${father.nom} ${father.prenom}`:""}</span>
           </div>
-          <div className="lg:w-1/12 text-center mt-3 mb-3">
-            <button onClick={onClose} className="focus:outline-none">
-                <i className="fas fa-arrow-right"></i>
-              </button>
-            </div>
+        )}
+          </div>
       </div>
     </>
   );
@@ -84,4 +113,5 @@ export default function CardProfilePatient({ patient, onClose }) {
 CardProfilePatient.propTypes = {
   patient: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
 };

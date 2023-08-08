@@ -23,6 +23,7 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
       .catch((error) => {
         console.error(error);
       });
+      //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

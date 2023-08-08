@@ -6,7 +6,6 @@ import "./f1.css"
 import CardSocialTraffic from "components/Cards/CardSocialTraffic.js";
 import { AuthContext } from "contexts/AuthContext";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
-import { fetchUserData } from "api/api";
 import CardCalendar from "components/Cards/CardCalendar";
 
 export default function Dashboard() {

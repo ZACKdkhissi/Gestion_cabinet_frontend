@@ -3,10 +3,8 @@ import PropTypes from "prop-types";
 
 // components
 
-import TableDropdown from "components/Dropdowns/TableDropdown.js";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
-import axios from "axios";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function CardAfficherUser({ color }) {
@@ -24,7 +22,7 @@ export default function CardAfficherUser({ color }) {
               console.error("Erreur lors de la récupération des utilisateurs :", error);
             });
         
-       
+            //eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
 
       const handleDelete = (userId) => {
@@ -33,7 +31,6 @@ export default function CardAfficherUser({ color }) {
         apiInstance.delete(`/api/v1/users/${userId}`)
           .then((response) => {
             console.log('User deleted successfully:', response.data);
-            // Mettez à jour la liste des utilisateurs en supprimant l'utilisateur supprimé
             setUsers(users.filter((user) => user.id !== userId));
           })
           .catch((error) => {

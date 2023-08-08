@@ -11,7 +11,6 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   const apiInstance = createApiInstance(token);
   const [showSearchResults, setShowSearchResults] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedFatherId, setSelectedFatherId] = useState("");
   const [isFatherSelected, setIsFatherSelected] = useState(false);
   const [userData, setUserData] = useState({
     email: "",
@@ -91,14 +90,19 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       reader.readAsDataURL(file);
     }
   };
-  
-  
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!userData.nom.trim() || !userData.prenom.trim()) {
       setShowAlert(true);
       setAlertType("error");
       setAlertMessage("Nom et prénom sont obligatoires !");
+      return;
+    }
+
+    if (!userData.cin.trim() && userData.photo_cin) {
+      setShowAlert(true);
+      setAlertType("error");
+      setAlertMessage("Veuillez saisir le numéro de CIN avant de télécharger la photo !");
       return;
     }
 
@@ -142,7 +146,6 @@ const handleSearchFather = (event) => {
 };
 
 const handleSelectFather = (father) => {
-  setSelectedFatherId(father.id_patient);
   setUserData({
     ...userData,
     id_parent: father.id_patient,
@@ -154,7 +157,6 @@ const handleSelectFather = (father) => {
 };
 
 const handleRemoveFather = () => {
-  setSelectedFatherId(null);
   setUserData({
     ...userData,
     id_parent: "",
@@ -192,6 +194,13 @@ const handleRemoveFather = () => {
         [name]: value.toUpperCase(),
       }));
     }
+  };
+
+  const handleRemovePhoto = () => {
+          setUserData((prevUserData) => ({
+        ...prevUserData,
+        photo_cin: "",
+      }));
   };
 
   return (
@@ -318,11 +327,17 @@ const handleRemoveFather = () => {
                     required
                   />
                   {userData.photo_cin && (
+                    <div>
                     <img
                       src={userData.photo_cin}
-                      alt="CIN"
+                      alt={`${userData.nom}_${userData.prenom}`}
                       className="mt-2 rounded-md h-20"
                     />
+                    <i
+                    className="fas fa-times text-red-500 cursor-pointer"
+                    onClick={handleRemovePhoto}
+                  ></i>
+                  </div>
                   )}
                 </div>
               </div>
@@ -455,7 +470,7 @@ const handleRemoveFather = () => {
                   name="mutuelle"
                   className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                 >
-                  <option value="other">Aucun</option>
+                  <option value="Aucun">Aucun</option>
                   <option value="CNSS">CNSS</option>
                   <option value="CNOPS">CNOPS</option>
                 </select>

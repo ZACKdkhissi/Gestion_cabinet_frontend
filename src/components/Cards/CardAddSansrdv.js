@@ -12,10 +12,15 @@ const CardAddSansrdv = ({ onClose, patient }) => {
   };
 
   const handleSubmit = () => {
+    const currentDate = new Date().toISOString().slice(0, 10);
+    const parts = currentDate.split("-");
+    const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
     const sansRdvData = {
       type: selectedType,
       statut: 0,
       patient: { id_patient: patient.id_patient },
+      date: formattedDate,
     };
 
     apiInstance
@@ -48,7 +53,7 @@ const CardAddSansrdv = ({ onClose, patient }) => {
               <option value="Delegue">Délégué</option>
             </select>
           </div>
-          <div className="flex justify-center"> {/* Updated to center the buttons */}
+          <div className="flex justify-center">
             <button onClick={onClose} className="bg-red-500 text-white font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 ease-linear transition-all w-1/2 duration-150">
               Annuler
             </button>

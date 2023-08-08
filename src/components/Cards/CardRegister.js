@@ -1,8 +1,6 @@
 import createApiInstance from "api/api";
-import axios from "axios";
 import { AuthContext } from "contexts/AuthContext";
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 // components
 
