@@ -9,6 +9,7 @@ import { AuthProvider } from "contexts/AuthContext";
 import RegisterUser from "views/admin/RegisterUser";
 import Users from "views/admin/Users";
 import GestionPatients from "views/admin/GestionPatients";
+import GestionMedicaments from "views/admin/GestionMedicaments";
 
 export default function Admin() {
   return (
@@ -22,6 +23,7 @@ export default function Admin() {
         <div className="px-4 md:px-10 mx-auto w-full -m-24">
           <Switch>
             <Route path="/admin/dashboard" exact component={Dashboard} />
+            <Route path="/admin/gestionmedicaments" exact component={GestionMedicaments} />
             <Route path="/admin/registerUser" exact component={RegisterUser} />
             <Route path="/admin/afficherutilisateur" exact component={Users} />
             <Route path="/admin/gestionpatients" exact component={GestionPatients} />

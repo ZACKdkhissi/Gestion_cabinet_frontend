@@ -2,8 +2,6 @@ import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
 import React, { useContext, useState } from "react";
 
-// components
-
 export default function CardRegister() {
 
     const [showAlert, setShowAlert] = useState(false);
@@ -108,7 +106,7 @@ export default function CardRegister() {
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                     htmlFor="grid-password"
                   >
-                    Email address
+                    Email
                   </label>
                   <input
                     type="email"
@@ -129,7 +127,7 @@ export default function CardRegister() {
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                     htmlFor="grid-password"
                   >
-                    Password
+                    Mot de passe
                   </label>
                   <input
                     type="password"
@@ -170,11 +168,11 @@ export default function CardRegister() {
               type="checkbox"
               className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
               name="roles"
-              value="DOCTOR"
-              checked={userData.roles.includes('DOCTOR')}
+              value="DOCTEUR"
+              checked={userData.roles.includes('DOCTEUR')}
               onChange={handleRoleChange}
             />
-            Doctor
+            Docteur
           </label>
           &nbsp;
           <label>
@@ -182,11 +180,11 @@ export default function CardRegister() {
               type="checkbox"
               className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
               name="roles"
-              value="SECRETARY"
-              checked={userData.roles.includes('SECRETARY')}
+              value="SECRETAIRE"
+              checked={userData.roles.includes('SECRETAIRE')}
               onChange={handleRoleChange}
             />
-            Secretary
+            Secretaire
           </label>
           &nbsp;
           <label>
@@ -194,11 +192,11 @@ export default function CardRegister() {
               type="checkbox"
               className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
               name="roles"
-              value="NURSE"
+              value="INFERMIERE"
               checked={userData.roles.includes('NURSE')}
               onChange={handleRoleChange}
             />
-            Nurse
+            Infermière
           </label>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useContext} from "react";
+import React, { useContext, useState} from "react";
 import "./f1.css"
 
 // components
@@ -10,23 +10,25 @@ import CardCalendar from "components/Cards/CardCalendar";
 
 export default function Dashboard() {
   const { token } = useContext(AuthContext);
+  const [shouldFetchSocialTraffic, setShouldFetchSocialTraffic] = useState(false);
+
+  const handleSocialTrafficUpdate = () => {
+    setShouldFetchSocialTraffic(!shouldFetchSocialTraffic);
+  };
   
   if (!token) {
     return <Redirect to="/auth/login" />;
   }
 
 
-
   return (
     <div>
       <div className="flex flex-wrap mt-3">
-        <div className="w-full xl:w-6/12 mb-12 xl:mb-0 px-4">
-          <div className="T5">
-          <CardCalendar />
-          </div>
+      <div className="w-full xl:w-6/12 mb-12 px-2">
+            <CardCalendar onSocialTrafficUpdate={handleSocialTrafficUpdate} />
         </div>
-        <div className="w-full xl:w-6/12 px-4">
-          <CardSocialTraffic />
+        <div className="w-full xl:w-6/12">
+          <CardSocialTraffic shouldFetch={shouldFetchSocialTraffic} />
         </div>
       </div>
     </div>

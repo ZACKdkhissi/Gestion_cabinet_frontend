@@ -874,6 +874,11 @@ select {
   background-color: rgba(20, 184, 166, var(--tw-bg-opacity));
 }
 
+.bg-green-700 {
+  --tw-bg-opacity: 1;
+  background-color: rgba(0, 100, 0, var(--tw-bg-opacity)); /* Darker green using adjusted RGB values */
+}
+
 .bg-emerald-200 {
   --tw-bg-opacity: 1;
   background-color: rgba(167, 243, 208, var(--tw-bg-opacity));

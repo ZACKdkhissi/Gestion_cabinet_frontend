@@ -119,7 +119,7 @@ export default function CardAfficherUser({ color }) {
                   </div>
                 </td>
                 <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center ">
-                <div className=""> {/* Utiliser la classe justify-center pour centrer horizontalement */}
+                <div className="">
                     <i onClick={() => handleDelete(user.id)} className="fas fa-trash-alt mr-3 text-lg text-red-500 "></i>
                 </div>
                 </td>
