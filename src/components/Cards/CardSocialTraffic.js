@@ -42,11 +42,18 @@ export default function CardSocialTraffic({shouldFetch}) {
     };
   
     fetchData();
+
+    const intervalId = setInterval(() => {
+      fetchData();
+      }, 5 * 60 * 1000); 
+
+      return () => {
+          clearInterval(intervalId);
+      };
+      
     // eslint-disable-next-line
   }, [shouldFetch]);
   
-
-  const [timers, setTimers] = useState({}); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +67,15 @@ export default function CardSocialTraffic({shouldFetch}) {
       }
     };
     fetchData();
+
+    const intervalId = setInterval(() => {
+      fetchData();
+      }, 5 * 60 * 1000); 
+
+      return () => {
+          clearInterval(intervalId);
+      };
+
     // eslint-disable-next-line
   }, []);
 

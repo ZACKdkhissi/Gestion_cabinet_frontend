@@ -17,11 +17,19 @@ export default function ConsulterRdv(props) {
     if (isConfirmed) {
       let updatedData;
       updatedData = { ...rendez, statut: 1 };
+      updatedData.patient = { ...updatedData.patient, type_patient: "officiel" };
+
+  apiInstance
+    .put(`/api/patients/${rendez.patient.id_patient}`, updatedData.patient)
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) =>{console.log(error)});
       if (rendez.heure) {
         apiInstance
         .put(`/api/rendezvous/${rendez.id_rdv}`, updatedData)
         .then((response) => {
-          console.log(response)
+          console.log(response.data)
           setIsRedirected(true);
         })
         .catch((error) => {
@@ -30,13 +38,15 @@ export default function ConsulterRdv(props) {
       } else {
         apiInstance
         .put(`/api/sansrdv/${rendez.id_sans_rdv}`, updatedData)
-        .then(() => {
+        .then((response) => {
+          console.log(response.data)
           setIsRedirected(true);
         })
         .catch((error) => {
           console.error("Error updating rendezvous status:", error);
         });
       }
+
     }
   };
   
