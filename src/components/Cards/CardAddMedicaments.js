@@ -1,8 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
 import { FaListUl, FaTimes } from "react-icons/fa"; 
 import { ResizableBox } from "react-resizable";
+import CardOrdonnance from "./CardOrdonnance";
 
 
 
@@ -72,6 +73,27 @@ const handleMedicamentListClick = () => {
         console.error(error);
       });}
   };
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+/************************* */
+
+  
+
+  const filteredMedicaments = medicaments.filter((medicament) =>
+  medicament.nom.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+
+
+
+/************************* */
+
+  
   
 
   return (
@@ -81,18 +103,8 @@ const handleMedicamentListClick = () => {
           <div className="lg:w-1/12 px-4">
             <h6 className="text-blueGray-700 text-xl font-bold">Ajouter Medicament</h6>
           </div>
-          <FaListUl
-    className="text-gray-600 cursor-pointer"
-    onClick={handleMedicamentListClick} 
-/>
-
-        </div>
-      </div>
-
-      <div className="flex-auto px-4 lg:px-10 py-10 pt-10">
-
-      {showMedicamentList && (
-  <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
+          {showMedicamentList && (
+  <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50" style={{marginLeft:'17cm'}}>
     <ResizableBox
       className="bg-white rounded-lg p-4 max-h-80 overflow-y-auto shadow-2xl" 
       width={400} 
@@ -102,6 +114,16 @@ const handleMedicamentListClick = () => {
     >
       <div className="bg-white rounded-lg p-2 max-h-70 overflow-y-auto">
         <h2 className="text-lg font-semibold mb-2">Liste des médicaments</h2>
+        <div className="relative mb-1">
+          <input
+            type="text"
+            placeholder="Rechercher un médica......."
+            onChange={handleSearchChange}
+            value={searchTerm}
+            className="border rounded-lg py-1 px-1 "
+          />
+        </div>
+
          
         <table className="items-center w-full bg-transparent border-collapse">
             <thead className="thead-light">
@@ -125,7 +147,7 @@ const handleMedicamentListClick = () => {
               </tr>
             </thead>
             <tbody>
-            {medicaments.map( medicament => (
+            {filteredMedicaments.map( medicament => (
               <tr key={medicament.id_medicament}>
                 <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                     <div className="ecr-2"> 
@@ -161,6 +183,18 @@ const handleMedicamentListClick = () => {
     </button>
   </div>
 )}
+          <FaListUl
+    className="text-gray-600 cursor-pointer"
+    onClick={handleMedicamentListClick} 
+/>
+
+
+        </div>
+      </div>
+
+      <div className="flex-auto px-4 lg:px-10 py-10 pt-10">
+
+      
 
         <form>
           <div className="flex flex-wrap">
@@ -305,6 +339,8 @@ const handleMedicamentListClick = () => {
         </div>
       )}
       </div>
+
+
     </div>
   );
 }

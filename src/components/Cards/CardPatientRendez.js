@@ -37,19 +37,20 @@ const CardPatientRendez = ({ patient, onClose }) => {
         console.log("successfully:", response.data);
         setShowAlert(true);
         setAlertType("success");
-        setAlertMessage(" successfully.");
+        setAlertMessage("Rendez-vous pris avec succès.");
         onClose();
       })
       .catch((error) => {
         console.error("Error :", error);
         setShowAlert(true);
         setAlertType("error");
-        setAlertMessage("Error .");
+        setAlertMessage(error.response.data); 
       });
   };
+  
 
   return (
-    <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg ">
+    <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg "  >
 
       <div className="p-4">
         {showAlert && (

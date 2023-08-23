@@ -78,17 +78,17 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
   };
 
   return (
-    <div>
+    <div >
       {showAppointmentModal && (
             <CardAddSansrdv onClose={() => setShowAppointmentModal(false)} patient={selectedPatient} />
       )}
-      <div
+      <div  style={{ height: "9cm",maxHeight: "9cm", overflowY: "auto" }}
         className={
           "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
           (color === "light" ? "bg-white" : "bg-lightBlue-900 text-white")
         }
       >
-        <div className="rounded-t mb-0 px-4 py-3 border-0 text-center">
+        <div className="rounded-t mb-0 px-4 py-3 border-0 text-center" >
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-bold lg:w-1/12">Patients</h3>
             <div className="flex items-center ">

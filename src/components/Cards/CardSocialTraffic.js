@@ -46,6 +46,8 @@ export default function CardSocialTraffic({shouldFetch}) {
   }, [shouldFetch]);
   
 
+  const [timers, setTimers] = useState({}); 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -85,6 +87,7 @@ export default function CardSocialTraffic({shouldFetch}) {
       }
     }
   };
+
 
   const navigateToConsulter = (rendez) => {
     history.push({
@@ -142,7 +145,7 @@ export default function CardSocialTraffic({shouldFetch}) {
   return (
     <>
     <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
-             style={{ height: "7.5cm",maxHeight: "7.5cm", overflowY: "auto" }}
+             style={{ height: "9cm",maxHeight: "9cm", overflowY: "auto" }}
              >
         <div className="rounded-t mb-0 px-4 py-3 border-0">
           <div className="flex flex-wrap items-center">
@@ -228,7 +231,7 @@ export default function CardSocialTraffic({shouldFetch}) {
         </div>
       </div>
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
-             style={{ height: "7.5cm",maxHeight:"7.5cm", overflowY: "auto" }}
+             style={{ height: "9cm",maxHeight:"9cm", overflowY: "auto" }}
              >
         <div className="rounded-t mb-0 px-4 py-3 border-0">
           <div className="flex flex-wrap items-center">
@@ -278,6 +281,7 @@ export default function CardSocialTraffic({shouldFetch}) {
                 </td>
                 <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                   {rendez.statut === 0 ? "Pas encore" : rendez.statut === 1 ? "Terminé" : rendez.statut}
+
                 </td>
                 <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-right">
             {isDocteur && rendez.statut === 0 && (
