@@ -10,6 +10,20 @@
   margin: 0.25rem;
 }
 
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.col-span-3 {
+  grid-column: span 3;
+}
+
+
+
 .a_1{
   margin-top: 3cm;
   margin-bottom: 3cm;
@@ -156,8 +170,6 @@ margin-bottom: 10px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
 }
-
-
 
 
 .current-month {
@@ -382,4 +394,27 @@ width: 1.5cm;
 .ec input[type="text"] {
   width: 2cm;
   margin-right: 15px;
+}
+
+.timer {
+  display: inline-flex;
+  align-items: center;
+  font-size: 4rem; /* Increased font size */
+  font-weight: bold;
+}
+
+.timer-digit {
+  width: 5rem; /* Increased width */
+  height: 5rem; /* Increased height */
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.2rem;
+}
+
+.timer-separator {
+  font-size: 4rem; /* Increased font size */
+  margin: 0 0.2rem;
 }

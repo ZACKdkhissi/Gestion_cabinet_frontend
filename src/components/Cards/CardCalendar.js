@@ -9,7 +9,7 @@ import Select from 'react-select';
 const formatOfDay = 'd';
 const formatOfWeek = 'eee';
 const formatOfWeekOptions = { locale: fr };
-const CardRdv = ({ isOpen, onClose, selectedDate, onSocialTrafficUpdate}) => {
+const CardRdv = ({ onClose, selectedDate, onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
     const generateTimeSlots = () => {
       const startTime = dateFns.setHours(dateFns.startOfDay(selectedDate), 8);
       const endTime = dateFns.setHours(dateFns.endOfDay(selectedDate), 18);
@@ -29,18 +29,24 @@ const CardRdv = ({ isOpen, onClose, selectedDate, onSocialTrafficUpdate}) => {
     const [rendezvousData, setRendezvousData] = useState([]);
     const [selectedId,setSelectedId]= useState([]);
     const [selectedTypesError, setSelectedTypesError] = useState(generateTimeSlots(selectedDate).map(() => false));
-  
+
     useEffect(() => {
       apiInstance
         .get('/api/patients')
         .then((response) => {
-          setPatients(response.data);
+          const sortedPatients = response.data.sort((a, b) =>
+        dateFns.compareDesc(
+          new Date(a.created_at),
+          new Date(b.created_at)
+        )
+      );
+      setPatients(sortedPatients);
         })
         .catch((error) => {
           console.error(error);
         });
         //eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
+      }, [addedPatient]);
 
   useEffect(() => {
     const fetchRendezvousData = async () => {
@@ -108,8 +114,6 @@ const handleSubmit = async (time, index) => {
     } catch (error) {
       console.log(error);
     }
-  
-  
 };
 
 
@@ -181,6 +185,22 @@ const handleSubmite = () => {
 };
 
 const [showEventForm, setShowEventForm] = useState(false);
+
+const options = [
+  { value: 'addPatient', label: 'Ajouter un nouveau patient' },
+  ...patients.map((patient) => ({
+    value: patient.id_patient,
+    label: `${patient.cin} | ${patient.nom} ${patient.prenom}`,
+  })),
+];
+
+const handleChange = (selectedOption) => {
+  if (selectedOption.value === 'addPatient') {
+    onAddPatientClick();
+  } else {
+    setSelectedId(selectedOption.value);
+  }
+};
 
 
     return (
@@ -295,20 +315,17 @@ const [showEventForm, setShowEventForm] = useState(false);
           {dateFns.format(timeSlot, "HH:mm")}
         </td>
         <td className="border-t px-3 py-2 text-center border-l-0 border-r-0 whitespace-nowrap">
-          <Select
-          className="w-full border rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-            placeholder="Sélectionner un patient"
-            options={patients.map((patient) => ({
-              value: patient.id_patient,
-              label: `${patient.cin} | ${patient.nom} ${patient.prenom}`,
-            }))}
-            onChange={(selectedOption) => {
-              setSelectedId(selectedOption.value);
-            }}
-            onInputChange={(inputValue) => handleChangeSearch(inputValue)}
-            isSearchable
-          />
-        </td>
+  <div className="flex items-center">
+  <Select
+  className="w-full border rounded-md shadow-sm focus:ring focus:ring-opacity-50"
+  placeholder="Sélectionner un patient"
+  options={options}
+  onChange={handleChange}
+  onInputChange={(inputValue) => handleChangeSearch(inputValue)}
+  isSearchable
+/>
+  </div>
+    </td>
         <td className="border-t px-3 py-2 text-center border-l-0 border-r-0 whitespace-nowrap">
         <div className="flex items-center space-x-2">
         <label className='ml-1'>C1</label>
@@ -355,7 +372,7 @@ const [showEventForm, setShowEventForm] = useState(false);
     );
   };
 
-const CardCalendar = ({onSocialTrafficUpdate}) => {
+const CardCalendar = ({onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
 
   
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -402,9 +419,7 @@ const CardCalendar = ({onSocialTrafficUpdate}) => {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
   const [rendezvousCounts, setRendezvousCounts] = useState({});
-
   
-
 const fetchData = async (date) => {
     try {
       const response = await apiInstance.get(`/api/rendezvous/date/count/${date}`);
@@ -533,7 +548,7 @@ const fetchData = async (date) => {
                 })
               ))}
             </div>
-            {showCardRdv && <CardRdv isOpen={showCardRdv} onClose={handleCloseCardRdv} selectedDate={selectedDate} onSocialTrafficUpdate={onSocialTrafficUpdate}/>}
+            {showCardRdv && <CardRdv isOpen={showCardRdv} onClose={handleCloseCardRdv} selectedDate={selectedDate} onSocialTrafficUpdate={onSocialTrafficUpdate} onAddPatientClick={onAddPatientClick} addedPatient={addedPatient}/>}
             </div>
         </div>
     );
