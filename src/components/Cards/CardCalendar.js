@@ -87,16 +87,31 @@ const handleSubmit = async (time, index) => {
     }
   };
 
-  try {
-    const response = await apiInstance.post("/api/rendezvous", newRendezvous);
-    console.log(response);
-    const updatedData = await fetchUpdatedData();
-    setRendezvousData(updatedData);
-    onSocialTrafficUpdate();
-  } catch (error) {
-    console.log(error);
-  }
+  
+    try {
+      const response1 = await apiInstance.get(`/api/rendezvous/count/${selectedId}`);
+      const rendezvousCount = response1.data;
+
+
+      if(rendezvousCount >= 1){
+        alert("le patient peut pas prendre un rendez vous!");
+        return;
+
+      }else{
+        const response = await apiInstance.post("/api/rendezvous", newRendezvous);
+        console.log(response);
+        const updatedData = await fetchUpdatedData();
+        setRendezvousData(updatedData);
+        onSocialTrafficUpdate();
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  
+  
 };
+
 
 const fetchUpdatedData = async () => {
   try {
@@ -246,7 +261,10 @@ const [showEventForm, setShowEventForm] = useState(false);
             </thead>
             <tbody>
   {generateTimeSlots().map((timeSlot, index) => {
+    
     const rendezVousTrouve = existRendez(dateFns.format(timeSlot, "HH:mm"), rendezvousData);
+    
+
     return rendezVousTrouve ? (
       <tr key={index}>
         <td className="border-t px-3 py-2 text-center border-l-0 border-r-0 whitespace-nowrap">
@@ -387,7 +405,7 @@ const CardCalendar = ({onSocialTrafficUpdate}) => {
 
   
 
-  const fetchData = async (date) => {
+const fetchData = async (date) => {
     try {
       const response = await apiInstance.get(`/api/rendezvous/date/count/${date}`);
       if (response && response.data) {
@@ -421,8 +439,8 @@ const CardCalendar = ({onSocialTrafficUpdate}) => {
     };
   
     fetchRendezvousCounts();
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onSocialTrafficUpdate]);
+    // eslint-disable-next-line
+  }, [currentDate,onSocialTrafficUpdate]);
 
   const [eventsByDate, setEventsByDate] = useState({});
   const [eventsFetched, setEventsFetched] = useState(false);
@@ -492,6 +510,10 @@ const CardCalendar = ({onSocialTrafficUpdate}) => {
                 key={dateIndex}
                 className={`
                 relative flex items-center justify-center border w-6rem h-16 cursor-pointer text-lg font-medium bg-lightBlue-600 rounded text-white
+                ${isWeekend ? 'other-month-day' : ''}
+                ${
+                  !isSameMonth(date, currentDate) ? 'other-month-day' : ''
+                }
                 ${events && events.some(event => event.titre === 'AID') ? 'bg-red-500' :
                   events && events.some(event => event.titre === 'VACANCES') ? 'bg-green-700' :
                   events && events.some(event => event.titre === 'REMARQUE') ? 'bg-yellow-500' :

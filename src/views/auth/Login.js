@@ -2,6 +2,7 @@ import { AuthContext } from "contexts/AuthContext";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
+
 export default function Login() {
   const [formData, setFormData] = useState({
     userName: '',
@@ -35,6 +36,7 @@ export default function Login() {
       if (response.ok) {
         const { token } = await response.json();
         login(token);
+        
         history.push('/admin/dashboard');
       } else {
         setErrorMessage('Username ou Mot de passe incorrect(s) !');

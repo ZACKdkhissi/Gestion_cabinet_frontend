@@ -54,7 +54,7 @@ export default function CardAfficherUser({ color }) {
                <h6 className="text-blueGray-700 text-xl font-bold">Les utilisateurs</h6>
             </div>
 
-            <div className="lg:w-6/12 px-4 ">
+            <div className="lg:w-3/12 px-4 ">
               <button className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-1 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 w-full ease-linear transition-all duration-150"
               ><Link to="/admin/registerUser">Ajouter un Utilisateur</Link></button>
             </div>        
@@ -62,7 +62,7 @@ export default function CardAfficherUser({ color }) {
             </div>
           </div>
         </div>
-        <div className="block w-full overflow-x-auto">
+        <div className="block w-full overflow-x-auto"   style={{ height: "9cm",maxHeight: "9cm", overflowY: "auto" }}>
           {/* Projects table */}
           <table className="items-center w-full bg-transparent border-collapse">
             <thead>
