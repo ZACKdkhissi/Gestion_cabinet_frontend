@@ -1,17 +1,20 @@
 import createApiInstance from "api/api";
+import useUserInfo from "api/useUserInfo";
 import { AuthContext } from "contexts/AuthContext";
+import { format } from "date-fns";
+import jsPDF from "jspdf";
 import React, { useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-// components
 
 export default function CardSocialTraffic({shouldFetch}) {
   const [data, setData] = useState([]);
   const [data1, setData1] = useState([]);
   const { token } = useContext(AuthContext);
-  const apiInstance = createApiInstance(token);
+  const apiInstance = createApiInstance(token)
+  const history = useHistory();
   const today = new Date();
   const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
-
   const filteredData1 = data1.filter(rendez => {
     const rendezDate = rendez.date;
     return rendezDate === formattedDate;
@@ -24,15 +27,24 @@ export default function CardSocialTraffic({shouldFetch}) {
         const formattedDate = `${(today.getDate()).toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
         const apiUrl = `/api/rendezvous/date/${formattedDate}`;
         const response = await apiInstance.get(apiUrl);
-        setData(response.data);
-        console.log(response.data);
+        const dataWithLocalTime = response.data.map(item => {
+          const [hours, minutes] = item.heure.split(':');
+          const localTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+          return { ...item, localTime };
+        });
+        dataWithLocalTime.sort((a, b) => a.localTime - b.localTime);
+  
+        setData(dataWithLocalTime);
+        console.log(dataWithLocalTime);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
+  
     fetchData();
     // eslint-disable-next-line
   }, [shouldFetch]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +85,59 @@ export default function CardSocialTraffic({shouldFetch}) {
       }
     }
   };
+
+  const navigateToConsulter = (rendez) => {
+    history.push({
+      pathname: `/admin/consulterRdv-${rendez.patient.nom}-${rendez.patient.prenom}`,
+      state: { rendez: rendez },
+    });
+  };
+
+  const generatePDF = async (rendez) => {
+    try {
+      const response = await apiInstance.get(`/api/ordonnances/${rendez.ordonnance.id_ordonnance}`);
+      const ordonnance = response.data;
+        const currentDate = format(new Date(), "dd-MM-yyyy");
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+        doc.setFontSize(16);
+        doc.text("Ordonnance Médicale", 105, 15, null, null, "center");
+        doc.setFontSize(12);
+        doc.text(`Date: ${currentDate}`, 20, 30);
+        doc.text(`Nom du patient: ${rendez.patient.nom}`, 20, 40);
+        doc.text(`Prénom du patient: ${rendez.patient.prenom}`, 20, 50);
+        doc.setLineWidth(0.5);
+        doc.line(20, 55, 190, 55);
+        doc.setFontSize(14);
+        doc.text("Médicaments:", 20, 65);
+        let yOffset = 75;
   
+        ordonnance.ordonnanceMedicaments.forEach((medication) => {
+          doc.setFontSize(12);
+          doc.text(`Médicament: ${medication.medicament.nom}`, 20, yOffset);
+          doc.text(`Posologie: ${medication.posologie}`, 20, yOffset + 10);
+          doc.text(`Quand: ${medication.quand}`, 20, yOffset + 20);
+          doc.text(`Pendant: ${medication.pendant}`, 20, yOffset + 30);
+          yOffset += 50;
+        });
+  
+        const pdfName = `ordonnance_${rendez.patient.nom}_${rendez.patient.prenom}_${currentDate}.pdf`;
+        doc.save(pdfName);
+        
+    } catch (error) {
+      window.alert("Pas d'ordonnance pour ce patient !");
+    }
+  };
+
+  const userInfo = useUserInfo();
+
+  const isDocteur = userInfo.some(
+    (user) =>
+      user.roles && user.roles.filter((value) => value.roleCode === "DOCTEUR").length > 0
+  );
 
   return (
     <>
@@ -136,8 +200,27 @@ export default function CardSocialTraffic({shouldFetch}) {
                   {rendez.statut === 0 ? "Pas encore" : rendez.statut === 1 ? "Terminé" : rendez.statut}
                 </td>
                 <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-right">
-                 <button className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150">consulter</button>
-                </th>
+            {isDocteur && rendez.statut === 0 && (
+              <button
+                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                onClick={() => {
+                  navigateToConsulter(rendez);
+                }}
+              >
+                Consulter
+              </button>
+            )}
+            {isDocteur && rendez.statut === 1 && (
+              <button
+                className="bg-lightBlue-500 text-white active:bg-red-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                onClick={() => {
+                  generatePDF(rendez);
+                }}
+              >
+                Générer PDF
+              </button>
+            )}
+          </th>
               </tr>
             ))}
             </tbody>
@@ -196,8 +279,27 @@ export default function CardSocialTraffic({shouldFetch}) {
                 <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                   {rendez.statut === 0 ? "Pas encore" : rendez.statut === 1 ? "Terminé" : rendez.statut}
                 </td>
-                <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right">
-                 <button className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150">consulter</button>
+                <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-right">
+            {isDocteur && rendez.statut === 0 && (
+              <button
+                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                onClick={() => {
+                  navigateToConsulter(rendez);
+                }}
+              >
+                Consulter
+              </button>
+            )}
+            {isDocteur && rendez.statut === 1 && (
+              <button
+                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                onClick={() => {
+                  generatePDF(rendez);
+                }}
+              >
+                Générer PDF
+              </button>
+            )}
                  <button
                     className="text-red-500 text-sm font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none ml-1 mr-1 mb-1 ease-linear transition-all duration-150"
                     onClick={() => handleDeleteSansRdv(rendez.id_sans_rdv)}

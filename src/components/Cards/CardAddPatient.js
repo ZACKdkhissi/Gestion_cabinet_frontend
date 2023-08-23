@@ -12,6 +12,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   const [showSearchResults, setShowSearchResults] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
   const [isFatherSelected, setIsFatherSelected] = useState(false);
+  const [allPatients, setAllPatients] = useState([]);
   const [userData, setUserData] = useState({
     email: "",
     nom: "",
@@ -29,6 +30,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     id_patient: "",
     date_de_naissance: "",
   });
+  
 
   const combineDateInputs = (day, month, year) => {
       return `${day || 0}-${month || 0}-${year}`;
@@ -90,6 +92,18 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       reader.readAsDataURL(file);
     }
   };
+
+  useEffect(() => {
+    apiInstance
+      .get("/api/patients")
+      .then((response) => {
+        setAllPatients(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching all patients:", error);
+      });
+      // eslint-disable-next-line
+  }, []);
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!userData.nom.trim() || !userData.prenom.trim()) {
@@ -106,13 +120,22 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       return;
     }
 
+    const existingPatient = allPatients.find(
+      (patient) =>
+        patient.nom === userData.nom &&
+        patient.prenom === userData.prenom
+    );
+    if (existingPatient) {
+      const confirmMessage = `Le patient ${userData.nom} ${userData.prenom} existe déjà dans la base de données.\n\nDonnées du patient :\n
+      ${existingPatient.cin} ${existingPatient.nom} ${existingPatient.prenom}`;
+    const confirmed = window.confirm(confirmMessage);
+    if (confirmed) {
     const photoCinBase64 = userData.photo_cin.split(",")[1];
-
-  apiInstance
+    apiInstance
     .post("/api/patients/", { ...userData, photo_cin: photoCinBase64 })
     .then((response) => {
       console.log(response.data);
-      onAddSuccess();
+      onAddSuccess(response.data);
     })
     .catch((error) => {
       console.error(error);
@@ -120,6 +143,22 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       setAlertType("error");
       setAlertMessage("Problème technique !");
     });
+  }else{return;}
+    }else{
+    const photoCinBase64 = userData.photo_cin.split(",")[1];
+    apiInstance
+    .post("/api/patients/", { ...userData, photo_cin: photoCinBase64 })
+    .then((response) => {
+      console.log(response.data);
+      onAddSuccess(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+      setShowAlert(true);
+      setAlertType("error");
+      setAlertMessage("Problème technique !");
+    });
+  }
 };
 
 const handleSearchFather = (event) => {
