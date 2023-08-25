@@ -39,7 +39,7 @@ const CardAddSansrdv = ({ onClose, patient }) => {
       <div className="bg-white rounded-lg p-4 flex flex-row shadow-lg">
         <div>
           <h2 className="text-xl font-semibold text-center mb-4 text-blue-800">
-            Rendez-vous instantané pour le patient {patient.nom} {patient.prenom}
+            Sans Rendez-vous pour le patient {patient.nom} {patient.prenom}
           </h2>
           <div className="mb-4">
             <select

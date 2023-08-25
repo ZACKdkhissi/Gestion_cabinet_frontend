@@ -540,7 +540,7 @@ const fetchData = async (date) => {
                 `}
               >
                 {dateFns.format(date, formatOfDay)}
-                <span className="text-xs absolute bottom-0 right-0 mr-1 mb-1">
+                <span className="text-xs absolute bottom-0 mb-1">
                   ({rendezvousCount})
                 </span>
               </span>
