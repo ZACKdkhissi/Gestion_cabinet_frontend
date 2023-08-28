@@ -194,14 +194,12 @@ export default function CardConsulterRdv({patient}) {
 </div>
       </div>
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg ">
-        <div className="text-center mt-5 mb-5">
-          <div className="timer" style={{ color: timerColor }}>
-            <span className="timer-digit">
+        <div className="flex justify-center items-center mt-5 mb-5">
+          <div className="timer text-white">
+            <span className="timer-digit" style={{ backgroundColor: timerColor }}>
               {timer.minutes < 10 ? "0" : ""}
               {timer.minutes}
-            </span>
-            <span className="timer-separator">:</span>
-            <span className="timer-digit">
+            <span className="ml-1 mr-1">:</span>
               {timer.seconds < 10 ? "0" : ""}
               {timer.seconds}
             </span>

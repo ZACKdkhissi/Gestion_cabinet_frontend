@@ -17,7 +17,7 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
     nom: patient.nom || "",
     prenom: patient.prenom || "",
     sexe: patient.sexe || "Homme",
-    type_patient: patient.type_patient || "provisoire",
+    code_patient : patient.code_patient || "",
     cin: patient.cin || "",
     photo_cin: patient.photo_cin || "",
     telephone: patient.telephone || "",
@@ -47,7 +47,12 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
         date_de_naissance: formattedDate,
         [name]: value,
       });
-    } else {
+    }else if (name === "code_patient" && name ) {
+      setUserData({
+        ...userData,
+        [name]: parseInt(value, 10),
+      });
+    }  else {
       setUserData({
         ...userData,
         [name]: value,
@@ -55,12 +60,6 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
     }
   };
 
-  const handleTypePatientChange = (event) => {
-    setUserData({
-      ...userData,
-      type_patient: event.target.value,
-    });
-  };
 
   const handleSexeChange = (event) => {
     setUserData({
@@ -264,179 +263,33 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
           </div>
         </div>
         <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
-          <form>
-            <div className="flex flex-wrap py-4">
-              <div className="w-full lg:w-4/12 px-4">
-                <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-4"
-                  htmlFor="type_patient"
+        <form>
+  <div className="flex flex-wrap py-4">
+    <div className="w-full lg:w-3/12 px-4 flex flex-wrap">
+      <div className="relative w-1/2 mb-3">
+      <label
+                  className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                  htmlFor="code_patient"
                 >
-                  Type de Patient
+                  Code Patient
                 </label>
-                <div className="relative w-full mb-3">
-                  <label className="mr-2">
-                    <input
-                      type="radio"
-                      name="type_patient"
-                      value="officiel"
-                      checked={userData.type_patient === "officiel"}
-                      onChange={handleTypePatientChange}
-                    />
-                    Officiel
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="type_patient"
-                      value="provisoire"
-                      checked={userData.type_patient === "provisoire"}
-                      onChange={handleTypePatientChange}
-                    />
-                    Provisoire
-                  </label>
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="nom"
-                  >
-                    Nom
-                  </label>
-                  <input
-                    type="text"
-                    onChange={handleChange}
-                    onKeyUp={handleKeyUp}
-                    name="nom"
-                    value={userData.nom}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="prenom"
-                  >
-                    Prénom
-                  </label>
-                  <input
-                    type="text"
-                    name="prenom"
-                    value={userData.prenom}
-                    onKeyUp={handleKeyUp}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="cin"
-                  >
-                    CIN
-                  </label>
-                  <div className="flex items-center">
-                  <input
-                    type="text"
-                    name="cin"
-                    value={userData.cin}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                  />
-                  <div className="flex items-center">
-                    <div className="clickable-icon" onClick={handlePhotoCINUpload}>
-                      <i className="fas fa-upload px-4"></i>
-                    </div>
-                  </div>
                 <input
-                  type="file"
-                  name="photo_cin"
-                  onChange={handleFileInputChange}
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  capture="user"
-                  required
+                  type="number"
+                  onChange={handleChange}
+                  name="code_patient"
+                  value={userData.code_patient}
+                  className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
                 />
-                  </div>
-                  <input
-                    type="file"
-                    name="photo_cin"
-                    onChange={handleFileInputChange}
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    capture="user"
-                    required
-                  />
-        {(userData.newphoto_cin || userData.photo_cin) && (
-          <div>
-                    <img
-                      src={userData.newphoto_cin ||`data:image/jpeg;base64,${userData.photo_cin}`}
-                      alt={`${userData.nom}_${userData.prenom}`}
-                      className="mt-2 rounded-md h-20"
-                    />
-
-                <i
-        className="fas fa-times text-red-500 cursor-pointer"
-        onClick={handleRemovePhoto}
-      ></i>
-      </div>
-      )}
-                </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
-                        <label
-                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                          htmlFor="date_de_naissance"
-                        >
-                          Date de naissance
-                        </label>
-                        <div className="relative w-full mb-3">
-                  <input
-                    type="number"
-                    name="day"
-                    placeholder="Jour"
-                    value={userData.day}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1"
-                    style={{ width: "24%" }}
-                  />
-                  <input
-                    type="number"
-                    name="month"
-                    placeholder="Moi"
-                    value={userData.month}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1 m-1"
-                    style={{ width: "24%" }}
-                  />
-                  <input
-                    type="number"
-                    name="year"
-                    placeholder="Année"
-                    value={userData.year}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150"
-                    style={{ width: "49%" }}
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-              <div className="relative w-full mb-3">
+              <div className="relative w-1/2 mb-3">
                 <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-4"
+                  className="block uppercase text-blueGray-600 text-xs font-bold mb-4 ml-3"
                   htmlFor="sexe"
                 >
                   Genre
                 </label>
                 <div>
-                  <label className="mr-2">
+                  <label className="w-full ml-3 mr-3 lg:w-1/2">
                     <input
                       type="radio"
                       name="sexe"
@@ -444,9 +297,9 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
                       checked={userData.sexe === "Homme"}
                       onChange={handleSexeChange}
                     />
-                    Homme
+                    H
                   </label>
-                  <label>
+                  <label className="w-full ml-3 lg:w-1/2">
                     <input
                       type="radio"
                       name="sexe"
@@ -454,109 +307,234 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
                       checked={userData.sexe === "Femme"}
                       onChange={handleSexeChange}
                     />
-                    Femme
+                    F
                   </label>
                 </div>
-              </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="telephone"
-                  >
-                    Téléphone
-                  </label>
-                  <input
-                    type="tel"
-                    name="telephone"
-                    value={userData.telephone}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="email"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={userData.email}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="ville"
-                  >
-                    Ville
-                  </label>
-                  <input
-                    type="text"
-                    name="ville"
-                    value={userData.ville}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-              <div className="relative w-full mb-3">
-                <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                  htmlFor="mutuelle"
-                >
-                  Mutuelle
-                </label>
-                <select
-                  name="mutuelle"
-                  onChange={handleChange}
-                  value={userData.mutuelle}
-                  className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                >
-                  <option value="Aucun">Aucun</option>
-                  <option value="CNSS">CNSS</option>
-                  <option value="CNOPS">CNOPS</option>
-                </select>
-              </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="nom"
+        >
+          Nom
+        </label>
+        <input
+          type="text"
+          onChange={handleChange}
+          onKeyUp={handleKeyUp}
+          name="nom"
+          value={userData.nom}
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+        />
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="prenom"
+        >
+          Prénom
+        </label>
+        <input
+          type="text"
+          name="prenom"
+          value={userData.prenom}
+          onKeyUp={handleKeyUp}
+          onChange={handleChange}
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+        />
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="date_de_naissance"
+        >
+          Date de naissance
+        </label>
         <div className="relative w-full mb-3">
-          <label
-            className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-            htmlFor="father_search"
-          >
-            Lien de parenté
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              name="father_search"
-              onChange={handleSearchFather}
-              value={searchFieldValue}
-              placeholder="Chercher le père ou la mère"
-              className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-            />
-            {isFatherSelected && (
-              <div
-                className="absolute right-0 top-0 flex items-center h-full cursor-pointer px-4"
-                onClick={handleRemoveFather}
-              >
-                <i className="fas fa-times text-red-500"></i>
-              </div>
-            )}
+          <input
+            type="number"
+            name="day"
+            placeholder="Jour"
+            value={userData.day}
+            onChange={handleChange}
+            className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1"
+            style={{ width: "24.5%" }}
+          />
+          <input
+            type="number"
+            name="month"
+            placeholder="Moi"
+            value={userData.month}
+            onChange={handleChange}
+            className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1 m-1"
+            style={{ width: "24.5%" }}
+          />
+          <input
+            type="number"
+            name="year"
+            placeholder="Année"
+            value={userData.year}
+            onChange={handleChange}
+            className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150"
+            style={{ width: "47%" }}
+          />
+        </div>
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="cin"
+        >
+          CIN
+        </label>
+        <div className="flex items-center">
+          <input
+            type="text"
+            name="cin"
+            value={userData.cin}
+            onChange={handleChange}
+            className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+          />
+          <div className="flex items-center">
+            <div className="clickable-icon" onClick={handlePhotoCINUpload}>
+              <i className="fas fa-upload px-4"></i>
+            </div>
           </div>
-          {searchFieldValue.trim() !== "" && showSearchResults && searchResults.length > 0 && !isFatherSelected && (
+          <input
+            type="file"
+            name="photo_cin"
+            onChange={handleFileInputChange}
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            capture="user"
+            required
+          />
+        </div>
+        {(userData.newphoto_cin || userData.photo_cin) && (
+          <div>
+            <img
+              src={userData.newphoto_cin || `data:image/jpeg;base64,${userData.photo_cin}`}
+              alt={`${userData.nom}_${userData.prenom}`}
+              className="mt-2 rounded-md h-20"
+            />
+            <i
+              className="fas fa-times text-red-500 cursor-pointer"
+              onClick={handleRemovePhoto}
+            ></i>
+          </div>
+        )}
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="ville"
+        >
+          Ville
+        </label>
+        <input
+          type="text"
+          name="ville"
+          value={userData.ville}
+          onChange={handleChange}
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+        />
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="telephone"
+        >
+          Téléphone
+        </label>
+        <input
+          type="tel"
+          name="telephone"
+          value={userData.telephone}
+          onChange={handleChange}
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+        />
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="email"
+        >
+          Email
+        </label>
+        <input
+          type="email"
+          name="email"
+          value={userData.email}
+          onChange={handleChange}
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+        />
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="mutuelle"
+        >
+          Mutuelle
+        </label>
+        <select
+          name="mutuelle"
+          onChange={handleChange}
+          value={userData.mutuelle}
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+        >
+          <option value="Aucun">Aucun</option>
+          <option value="CNSS">CNSS</option>
+          <option value="CNOPS">CNOPS</option>
+        </select>
+      </div>
+    </div>
+    <div className="w-full lg:w-3/12 px-4">
+      <div className="relative w-full mb-3">
+        <label
+          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+          htmlFor="father_search"
+        >
+          Lien de parenté
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            name="father_search"
+            onChange={handleSearchFather}
+            value={searchFieldValue}
+            placeholder="Chercher le père ou la mère"
+            className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+          />
+          {isFatherSelected && (
+            <div
+              className="absolute right-0 top-0 flex items-center h-full cursor-pointer px-4"
+              onClick={handleRemoveFather}
+            >
+              <i className="fas fa-times text-red-500"></i>
+            </div>
+          )}
+        </div>
+        {searchFieldValue.trim() !== "" &&
+          showSearchResults &&
+          searchResults.length > 0 &&
+          !isFatherSelected && (
             <div className="mt-2 border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
               {searchResults.map((father) => (
                 <div
@@ -568,25 +546,28 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
               ))}
             </div>
           )}
-        </div>
-        </div>
-            </div>
-            <div className="flex justify-center">
-              <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 lg:w-4/12 ease-linear transition-all duration-150"
-                type="submit"
-                onClick={handleSubmit}
-              >
-                Modifier
-              </button>
-            </div>
-            {showAlert && (
-              <div>
-                {alertType === "error" && <i className="fa fa-times-circle mr-2"></i>}
-                {alertMessage}
-              </div>
-            )}
-          </form>
+      </div>
+    </div>
+  </div>
+  <div className="flex justify-center">
+    <button
+      className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 lg:w-4/12 ease-linear transition-all duration-150"
+      type="submit"
+      onClick={handleSubmit}
+    >
+      Modifier
+    </button>
+  </div>
+  {showAlert && (
+    <div>
+      {alertType === "error" && (
+        <i className="fa fa-times-circle mr-2"></i>
+      )}
+      {alertMessage}
+    </div>
+  )}
+</form>
+
         </div>
       </div>
     </>

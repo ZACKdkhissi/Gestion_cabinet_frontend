@@ -275,7 +275,7 @@ const handleChange = (selectedOption) => {
             <tr>
               <th className="px-3 py-2">Heure</th>
               <th className="px-3 py-2 text-left">Patient</th>
-              <th className="px-3 py-2 text-left">Type</th>
+              <th className="px-3 py-2 text-left">Motif</th>
               <th className="px-3 py-2"></th>
             </tr>
             </thead>
@@ -328,7 +328,7 @@ const handleChange = (selectedOption) => {
     </td>
         <td className="border-t px-3 py-2 text-center border-l-0 border-r-0 whitespace-nowrap">
         <div className="flex items-center space-x-2">
-        <label className='ml-1'>C1</label>
+        <label className='ml-1'>CS</label>
           <input
             type="radio"
             name="type"
@@ -336,7 +336,7 @@ const handleChange = (selectedOption) => {
             checked={selectedTypes[index] === "Consultation"}
             onChange={(event) => handleInputChange(event, index)}
           />
-          <label className='ml-1'>C2</label>
+          <label className='ml-1'>C</label>
           <input
             type="radio"
             name="type"

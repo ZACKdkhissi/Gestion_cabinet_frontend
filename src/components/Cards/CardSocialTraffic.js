@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import jsPDF from "jspdf";
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { differenceInMinutes } from "date-fns";
 
 
 export default function CardSocialTraffic({shouldFetch}) {
@@ -35,9 +36,7 @@ export default function CardSocialTraffic({shouldFetch}) {
         dataWithLocalTime.sort((a, b) => a.localTime - b.localTime);
   
         setData(dataWithLocalTime);
-        console.log(dataWithLocalTime);
       } catch (error) {
-        console.error('Error fetching data:', error);
       }
     };
   
@@ -61,16 +60,14 @@ export default function CardSocialTraffic({shouldFetch}) {
         const apiUrl = `/api/sansrdv`;
         const response = await apiInstance.get(apiUrl);
         setData1(response.data);
-        console.log(response.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
       }
     };
     fetchData();
 
     const intervalId = setInterval(() => {
       fetchData();
-      }, 5 * 60 * 1000); 
+      }, 60 * 1000); 
 
       return () => {
           clearInterval(intervalId);
@@ -84,9 +81,7 @@ export default function CardSocialTraffic({shouldFetch}) {
       const apiUrl = `/api/sansrdv`;
       const response = await apiInstance.get(apiUrl);
       setData1(response.data);
-      console.log(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
     }
   };
 
@@ -99,7 +94,6 @@ export default function CardSocialTraffic({shouldFetch}) {
         setData1(updatedData1);
         fetchDataSansRdv();
       } catch (error) {
-        console.error("Error deleting data:", error);
       }
     }
   };
@@ -158,6 +152,22 @@ export default function CardSocialTraffic({shouldFetch}) {
       user.roles && user.roles.filter((value) => value.roleCode === "DOCTEUR").length > 0
   );
 
+  const calculateColor = (totalMinutes) => {
+    const startColor = [0, 128, 0];
+    const endColor = [255, 0, 0];
+    const maxMinutes = 30;
+    totalMinutes = Math.min(Math.max(totalMinutes, 0), maxMinutes);
+    const progress = totalMinutes / maxMinutes;
+    const interpolatedColor = startColor.map((startValue, index) => {
+      const endValue = endColor[index];
+      const diff = endValue - startValue;
+      return Math.round(startValue + diff * progress);
+    });
+  
+    return `rgb(${interpolatedColor.join(",")})`;
+  };
+  
+
   return (
     <>
     <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
@@ -170,53 +180,65 @@ export default function CardSocialTraffic({shouldFetch}) {
               Sans Rendez-vous
               </h3>
             </div>
-            <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-              <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                type="button"
-                onClick={() => {
-                  window.location.reload();
-                }}
-              >
-                <i className="fas fa-sync-alt"></i>
-              </button>
-            </div>
           </div>
         </div>
         <div className="block w-full overflow-x-auto">
           <table className="items-center w-full bg-transparent border-collapse">
           <thead className="thead-light">
               <tr>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
-                  Type  
+              <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-sm uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold min-w-120-px">
+                <i className="fas fa-clock"></i>
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
+              <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
                   Patient  
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
+                  Motif  
+                </th>
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
                   Statut
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
                 </th>
               </tr>
             </thead>
             <tbody>
-            {filteredData1.map( rendez => (
+            {filteredData1.map( rendez => {
+               const now = new Date();
+               let timer;
+               let timerColor = "transparent";
+               
+               if (rendez.statut === 0) {
+                 const createdAtDate = new Date(rendez.created_at);
+                 timer = differenceInMinutes(now, createdAtDate);
+                 timerColor = calculateColor(timer);
+              }
+               return (
               <tr key={rendez.id_sans_rdv}>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                 {rendez.type}
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap text-center font-bold rounded text-white">
+                <span
+                className="rounded px-3 py-1"
+                  style={{
+                    backgroundColor: timerColor,
+                  }}
+                >
+                  {timer}
+                </span>
                 </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
                  {rendez.patient.nom} {rendez.patient.prenom}
                 </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                  {rendez.statut === 0 ? "Pas encore" : rendez.statut === 1 ? "Terminé" : rendez.statut}
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                 {rendez.type}
+                </td>
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                  {rendez.statut === 0 ? "En attente" : rendez.statut === 1 ? "Terminé" : rendez.statut}
 
                 </td>
-                <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-right">
+                <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-center">
             {isDocteur && rendez.statut === 0 && (
               <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
                 onClick={() => {
                   navigateToConsulter(rendez);
                 }}
@@ -226,7 +248,7 @@ export default function CardSocialTraffic({shouldFetch}) {
             )}
             {isDocteur && rendez.statut === 1 && (
               <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
                 onClick={() => {
                   generatePDF(rendez);
                 }}
@@ -235,14 +257,14 @@ export default function CardSocialTraffic({shouldFetch}) {
               </button>
             )}
                  <button
-                    className="text-red-500 text-sm font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none ml-1 mr-1 mb-1 ease-linear transition-all duration-150"
+                    className="text-red-500 text-sm font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
                     onClick={() => handleDeleteSansRdv(rendez.id_sans_rdv)}
                   >
                     <i className="fas fa-trash-alt"></i>
                   </button>
                 </th>
               </tr>
-            ))}
+            )})}
             </tbody>
           </table>
         </div>
@@ -257,58 +279,47 @@ export default function CardSocialTraffic({shouldFetch}) {
                 Rendez-vous
               </h3>
             </div>
-            <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-              <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                type="button"
-                onClick={() => {
-                  window.location.reload();
-                }}
-              >
-                <i className="fas fa-sync-alt"></i>
-              </button>
-            </div>
           </div>
         </div>
         <div className="block w-full overflow-x-auto">
           <table className="items-center w-full bg-transparent border-collapse">
             <thead className="thead-light">
               <tr>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold">
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
                   Heure
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
-                  Type  
-                </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
                   Patient  
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">  
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
+                  Motif
+                </th>
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">  
                   Statut
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">  
+                <th className="px-4 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">  
                 </th>
               </tr>
             </thead>
             <tbody>
             {data.map( rendez => (
               <tr key={rendez.id_rdv}>
-                <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3">
+                <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
                   {rendez.heure}
                 </th>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3">
-                 {rendez.type}
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3">
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
                  {rendez.patient.nom} {rendez.patient.prenom}
                 </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3">
-                  {rendez.statut === 0 ? "Pas encore" : rendez.statut === 1 ? "Terminé" : rendez.statut}
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
+                 {rendez.type}
                 </td>
-                <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-right">
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
+                  {rendez.statut === 0 ? "En attente" : rendez.statut === 1 ? "Terminé" : rendez.statut}
+                </td>
+                <th className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-center">
             {isDocteur && rendez.statut === 0 && (
               <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
                 onClick={() => {
                   navigateToConsulter(rendez);
                 }}
@@ -318,7 +329,7 @@ export default function CardSocialTraffic({shouldFetch}) {
             )}
             {isDocteur && rendez.statut === 1 && (
               <button
-                className="bg-lightBlue-500 text-white active:bg-red-500 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                className="bg-lightBlue-500 text-white active:bg-red-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
                 onClick={() => {
                   generatePDF(rendez);
                 }}

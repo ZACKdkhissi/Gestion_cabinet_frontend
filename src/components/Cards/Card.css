@@ -397,24 +397,20 @@ width: 1.5cm;
 }
 
 .timer {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  font-size: 4rem; /* Increased font size */
+  justify-content: center;
+  font-size: 3.7rem;
   font-weight: bold;
 }
 
 .timer-digit {
-  width: 5rem; /* Increased width */
-  height: 5rem; /* Increased height */
+  width: 11rem;
+  height: 5rem;
   background-color: #f3f4f6;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 0.2rem;
 }
 
-.timer-separator {
-  font-size: 4rem; /* Increased font size */
-  margin: 0 0.2rem;
-}

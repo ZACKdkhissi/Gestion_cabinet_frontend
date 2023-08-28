@@ -18,20 +18,11 @@ export default function Sidebar() {
 
   const userInfo = useUserInfo();
 
-  const isSecretaire = userInfo.some(
-    (user) =>
-      user.roles && user.roles.filter((value) => value.roleCode === "SECRETAIRE").length > 0
-  );
+  const isSecretaire = userInfo.some(user => user.roles.some(role => role.roleCode === "SECRETAIRE"));
+  const isDocteur = userInfo.some(user => user.roles.some(role => role.roleCode === "DOCTEUR"));
+  const isAdmin = userInfo.some(user => user.roles.some(role => role.roleCode === "ADMIN"));
 
-  const isDocteur = userInfo.some(
-    (user) =>
-      user.roles && user.roles.filter((value) => value.roleCode === "DOCTEUR").length > 0
-  );
-  
-  const isAdmin = userInfo.some(
-    (user) =>
-      user.roles && user.roles.filter((value) => value.roleCode === "ADMIN").length > 0
-  );
+
 
   return (
     <>
@@ -45,11 +36,11 @@ export default function Sidebar() {
             <i className="fas fa-bars"></i>
           </button>
           <Link
-              className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
-              to={isAdmin ? "/admin/AfficherUtilisateur" : "/admin/dashboard"}
-            >
-              Gestion Cabinet
-            </Link>
+            className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
+            to={isAdmin && !isSecretaire && !isDocteur? "/admin/AfficherUtilisateur" : "/admin/dashboard"}
+          >
+            Gestion Cabinet
+          </Link>
           <ul className="md:hidden items-center flex flex-wrap list-none">
             <li className="inline-block relative">
               <UserDropdown />
@@ -61,12 +52,12 @@ export default function Sidebar() {
               collapseShow
             }
           >
-            <div className="md:min-w-full md:hidden block pb-4 mb-4 border-b border-solid border-blueGray-200">
+            <div className="md:min-w-full md:hidden block border-blueGray-200">
               <div className="flex flex-wrap">
                 <div className="w-6/12">
                   <Link
                     className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
-                    to="/"
+                    to={isAdmin && !isSecretaire && !isDocteur? "/admin/AfficherUtilisateur" : "/admin/dashboard"}
                   >
                     Gestion Cabinet
                   </Link>
@@ -82,110 +73,114 @@ export default function Sidebar() {
                 </div>
               </div>
             </div>
-            
-              <div>
-                <ul className="md:flex-col md:min-w-full flex flex-col list-none">
-                {(isSecretaire ||isDocteur) && (
-                <div>
-                <hr className="my-4 md:min-w-full" />
-                <li className="items-center">
-                  <Link
-                    className={
-                      "text-xs uppercase py-3 font-bold block " +
-                      (window.location.href.indexOf("/admin/dashboard") !== -1
-                        ? "text-lightBlue-500 hover:text-lightBlue-600"
-                        : "text-blueGray-700 hover:text-blueGray-500")
-                    }
-                    to="/admin/dashboard"
-                  >
-                    <i
-                      className={
-                        "fas fa-tv mr-2 text-sm " +
-                        (window.location.href.indexOf("/admin/dashboard") !== -1
-                          ? "opacity-75"
-                          : "text-blueGray-300")
-                      }
-                    ></i>{" "}
-                    Tableau de bord
-                  </Link>
-                </li>
 
-                <li className="items-center">
-                  <Link
-                    className={
-                      "text-xs uppercase py-3 font-bold block " +
-                      (window.location.href.indexOf("/admin/gestionpatients") !== -1
-                        ? "text-lightBlue-500 hover:text-lightBlue-600"
-                        : "text-blueGray-700 hover:text-blueGray-500")
-                    }
-                    to="/admin/gestionpatients"
-                  >
-                    <i
-                      className={
-                        "fas fa-user-circle mr-2 text-sm " +
-                        (window.location.href.indexOf("/admin/gestionpatients") !== -1
-                          ? "opacity-75"
-                          : "text-blueGray-300")
-                      }
-                    ></i>{" "}
-                    Gestion Patient
-                  </Link>
-                </li>
-                </div>
+            <div>
+              <ul className="md:flex-col md:min-w-full flex flex-col list-none">
+                {(isSecretaire || isDocteur) && (
+                  <>
+                    <hr className="my-4 md:min-w-full" />
+                    <li className="items-center">
+                      <Link
+                        className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (window.location.href.indexOf("/admin/dashboard") !== -1
+                            ? "text-lightBlue-500 hover:text-lightBlue-600"
+                            : "text-blueGray-700 hover:text-blueGray-500")
+                        }
+                        to="/admin/dashboard"
+                      >
+                        <i
+                          className={
+                            "fas fa-tv mr-2 text-sm " +
+                            (window.location.href.indexOf("/admin/dashboard") !== -1
+                              ? "opacity-75"
+                              : "text-black")
+                          }
+                        ></i>{" "}
+                        Tableau de bord
+                      </Link>
+                    </li>
+
+                    <li className="items-center">
+                      <Link
+                        className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (window.location.href.indexOf("/admin/gestionpatients") !== -1
+                            ? "text-lightBlue-500 hover:text-lightBlue-600"
+                            : "text-blueGray-700 hover:text-blueGray-500")
+                        }
+                        to="/admin/gestionpatients"
+                      >
+                        <i
+                          className={
+                            "fas fa-user-circle mr-2 text-sm " +
+                            (window.location.href.indexOf("/admin/gestionpatients") !== -1
+                              ? "opacity-75"
+                              : "text-black")
+                          }
+                        ></i>{" "}
+                        Patients
+                      </Link>
+                    </li>
+                  </>
                 )}
-            {isAdmin &&(
-              <div><hr className="my-4 md:min-w-full" />
-        <li className="items-center">
-          <Link
-            className={
-              "text-xs uppercase py-3 font-bold block " +
-              (window.location.href.indexOf("/admin/AfficherUtilisateur") !== -1
-                ? "text-lightBlue-500 hover:text-lightBlue-600"
-                : "text-blueGray-700 hover:text-blueGray-500")
-            }
-            to="/admin/AfficherUtilisateur"
-          >
-            <i
-              className={
-                "fas fa-tv mr-2 text-sm " +
-                (window.location.href.indexOf("/admin/AfficherUtilisateur") !== -1
-                  ? "opacity-75"
-                  : "text-blueGray-300")
-              }
-            ></i>{" "}
-            Utilisateurs
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link
-            className={
-              "text-xs uppercase py-3 font-bold block " +
-              (window.location.href.indexOf("/admin/gestionmedicaments") !== -1
-                ? "text-lightBlue-500 hover:text-lightBlue-600"
-                : "text-blueGray-700 hover:text-blueGray-500")
-            }
-            to="/admin/gestionmedicaments"
-          >
-            <i
-              className={
-                "fas fa-tv mr-2 text-sm " +
-                (window.location.href.indexOf("/admin/gestionmedicaments") !== -1
-                  ? "opacity-75"
-                  : "text-blueGray-300")
-              }
-            ></i>{" "}
-            Medicaments
-          </Link>
-        </li>
 
-        </div>
-        )}
+                {isAdmin && (
+                  <>
+                    <hr className="my-4 md:min-w-full" />
+                    <li className="items-center">
+                      <Link
+                        className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (window.location.href.indexOf("/admin/AfficherUtilisateur") !== -1
+                            ? "text-lightBlue-500 hover:text-lightBlue-600"
+                            : "text-blueGray-700 hover:text-blueGray-500")
+                        }
+                        to="/admin/AfficherUtilisateur"
+                      >
+                        <i
+                          className={
+                            "fas fa-user mr-2 text-sm " +
+                            (window.location.href.indexOf("/admin/AfficherUtilisateur") !== -1
+                              ? "opacity-75"
+                              : "text-black")
+                          }
+                        ></i>{" "}
+                        Utilisateurs
+                      </Link>
+                    </li>
+                    <li className="items-center">
+                      <Link
+                        className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (window.location.href.indexOf("/admin/gestionmedicaments") !== -1
+                            ? "text-lightBlue-500 hover:text-lightBlue-600"
+                            : "text-blueGray-700 hover:text-blueGray-500")
+                        }
+                        to="/admin/gestionmedicaments"
+                      >
+                        <i
+                          className={
+                            "fas fa-pills mr-2 text-sm " +
+                            (window.location.href.indexOf("/admin/gestionmedicaments") !== -1
+                              ? "opacity-75"
+                              : "text-black")
+                          }
+                        ></i>{" "}
+                        Medicaments
+                      </Link>
+                    </li>
+                  </>
+                )}
               </ul>
-              </div>
+            </div>
+            <div style={{ marginTop: "auto" }}>
+              <hr className="my-4 md:min-w-full" />
+              <button onClick={handleLogout} className="text-xs uppercase py-3 font-bold block text-red-600 hover:text-red-700">
+                <i className="fas fa-sign-out-alt mr-2 text-sm"></i>Se déconnecter
+              </button>
+            </div>
           </div>
-          <hr className="my-4 md:min-w-full" />
-            <button onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt mr-2 text-sm"></i>Se déconnecter</button>
         </div>
       </nav>
     </>
