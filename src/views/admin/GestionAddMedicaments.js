@@ -6,7 +6,7 @@ import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 
 
 
-export default function GestionMedicaments() {
+export default function GestionAddMedicaments() {
     const { token } = useContext(AuthContext);
   if (!token) {
     return <Redirect to="/auth/login" />;
@@ -15,7 +15,7 @@ export default function GestionMedicaments() {
     <>
       <div className="flex flex-wrap">
         <div className="w-full lg:w-2/12 px-4">
-          <CardMedicaments />
+          <CardAddMedicaments />
           </div>
         </div>
     </>
