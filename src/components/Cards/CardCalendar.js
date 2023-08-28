@@ -162,14 +162,22 @@ const eventTypes = ['AID', 'VACANCES', 'REMARQUE'];
 
 
 const [eventTitle, setEventTitle] = useState('');
+const [customEventType, setCustomEventType] = useState('');
+
 const [endDate, setEndDate] = useState(selectedDate);
 
 
 const handleSubmite = () => {
+  let finalEventTitle = eventTitle;
+
+  if (eventTitle === "REMARQUE" && customEventType.trim() !== "") {
+    finalEventTitle = customEventType;
+  }
+
   const newEvent = {
     from_date: dateFns.format(selectedDate, 'dd-MM-yyyy'),
     to_date: dateFns.format(endDate, 'dd-MM-yyyy'),
-    titre: eventTitle,
+    titre: finalEventTitle,
   };
 
   apiInstance
@@ -177,7 +185,6 @@ const handleSubmite = () => {
     .then((response) => {
       console.log(response);
       onClose();
-      
     })
     .catch((error) => {
       console.log(error);
@@ -202,6 +209,17 @@ const handleChange = (selectedOption) => {
   }
 };
 
+const handleEventTypeChange = (e) => {
+  const selectedValue = e.target.value;
+
+  if (selectedValue === "REMARQUE") {
+    setEventTitle(selectedValue);
+    setCustomEventType(''); // Réinitialisez le champ personnalisé lorsque REMARQUE est sélectionné
+  } else {
+    setEventTitle(selectedValue);
+    setCustomEventType(''); // Réinitialisez le champ personnalisé lorsqu'un autre type est sélectionné
+  }
+};
 
     return (
       <div className="absolute top-0 left-0 transform bg-blueGray-200 shadow-md rounded-lg w-full h-full p-6"
@@ -209,22 +227,26 @@ const handleChange = (selectedOption) => {
         maxHeight: 'calc(100%)',
         overflowY: 'auto',
       }}>
-       <div className="flex items-center justify-between mt-5 mb-5">
-          <h6 className="text-lg font-semibold uppercase w-full text-center ml-2">
-            {dateFns.format(selectedDate, 'dd-MM-yyyy')}
-          </h6>
-          <button onClick={onClose} className="mr-2 focus:outline-none" >
-          <i className="fas fa-times cursor-pointer"></i>
-          </button>
+        <div className="event-header">
+          <div className="flex items-center justify-between mt-5 mb-5">
+            <h6 className="text-lg font-semibold uppercase w-full text-center ml-2">
+              {dateFns.format(selectedDate, 'dd-MM-yyyy')}
+            </h6>
+            <button onClick={onClose} className="mr-2 focus:outline-none" >
+            <i className="fas fa-times cursor-pointer"></i>
+            </button>
+          </div>
+          
         </div>
         <div className="flex items-center justify-center text-center mt-5 mb-5">
-        <button
-          onClick={() => setShowEventForm(true)}
-          className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-full"
-        >
-        Ajouter un événement
-        </button>
-        </div>
+          <button
+            onClick={() => setShowEventForm(true)}
+            className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-full"
+          >
+          Ajouter un événement
+          </button>
+          </div>
+       
         {showEventForm && (
   <div className="event-form">
     <form onSubmit={handleSubmite}>
@@ -236,19 +258,34 @@ const handleChange = (selectedOption) => {
 
       <label>Type d'événement:</label>
       <select
-        name="eventType"
-        value={eventTitle}
-        onChange={(e) => setEventTitle(e.target.value)}
-        className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
-        required
-      >
-        <option value="">Sélectionner un type</option>
-        {eventTypes.map((eventType) => (
-          <option key={eventType} value={eventType}>
-            {eventType}
-          </option>
-        ))}
-      </select>
+            name="eventType"
+            value={eventTitle}
+            onChange={handleEventTypeChange}
+            className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
+            required
+          >
+            <option value="">Sélectionner un type</option>
+            {eventTypes.map((eventType) => (
+              <option key={eventType} value={eventType}>
+                {eventType}
+              </option>
+            ))}
+          </select>
+          {eventTitle === "REMARQUE" && (
+            <div>
+              <label>Saisir un type d'événement personnalisé:</label>
+              <input 
+                name="customEventType"
+                value={customEventType}
+                onChange={(e) => setCustomEventType(e.target.value)}
+                className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
+                required
+              />
+            </div>
+          )}
+          
+
+
 
       <label>Date de fin:</label>
       <input
@@ -456,6 +493,7 @@ const fetchData = async (date) => {
     fetchRendezvousCounts();
     // eslint-disable-next-line
   }, [currentDate,onSocialTrafficUpdate]);
+  
 
   const [eventsByDate, setEventsByDate] = useState({});
   const [eventsFetched, setEventsFetched] = useState(false);
@@ -500,9 +538,9 @@ const fetchData = async (date) => {
         <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
             <div className="rounded-t mb-0 px-4 py-3 border-0">
             <div className="calendar-header flex items-center justify-between">
-                <button className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-4/12" onClick={handlePreviousMonth}>Précédent</button>
+                <button className="bg-blueGray-700 text-white active:bg-white font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-3/12" onClick={handlePreviousMonth}>Précédent</button>
                 <span className="text-lg font-semibold uppercase">{dateFns.format(currentDate, 'MMMM yyyy', { locale: fr })}</span>
-                <button className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-4/12" onClick={handleNextMonth}>Suivant</button>
+                <button className="bg-blueGray-700 text-white active:bg-white font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-3/12" onClick={handleNextMonth}>Suivant</button>
             </div>
             <div className="grid grid-cols-7 gap-4">
                 {weeks[0].map((date, dateIndex) => (
@@ -515,43 +553,48 @@ const fetchData = async (date) => {
                   const rendezvousCount = rendezvousCounts[formattedDate];
                   const events = eventsByDate[formattedDate];
                   const isWeekend = dateFns.isSaturday(date) || dateFns.isSunday(date);
-                  return (
-                    <span
-                onClick={() => {
-                  if (!isWeekend) {
-                    handleDayClick(date);
-                  }
-                }}
-                key={dateIndex}
-                className={`
-                relative flex items-center justify-center border w-6rem h-16 cursor-pointer text-lg font-medium bg-lightBlue-600 rounded text-white
-                ${isWeekend ? 'other-month-day' : ''}
-                ${
-                  !isSameMonth(date, currentDate) ? 'other-month-day' : ''
-                }
-                ${events && events.some(event => event.titre === 'AID') ? 'bg-red-500' :
-                  events && events.some(event => event.titre === 'VACANCES') ? 'bg-green-700' :
-                  events && events.some(event => event.titre === 'REMARQUE') ? 'bg-yellow-500' :
-                  !isSameMonth(date, currentDate) ? 'bg-red-700' :
-                  dateFns.isSaturday(date) ? 'bg-red-700' :
-                  dateFns.isSunday(date) ? 'bg-red-700' :
-                  dateFns.isToday(date) ? 'bg-blueGray-700' :
-                  '' }
-                `}
-              >
-                {dateFns.format(date, formatOfDay)}
-                <span className="text-xs absolute bottom-0 mb-1">
-                  ({rendezvousCount})
-                </span>
-              </span>
+                  const isPastDay = dateFns.isBefore(date, new Date(), { inclusive: false });
+                  const shouldDisable = isWeekend || (isPastDay && !dateFns.isToday(date));
+
+
+  
+
+                return (
+                  <span
+                    onClick={() => {
+                      if (!shouldDisable) {
+                        handleDayClick(date);
+                      }
+                    }}
+                    className={`
+                      relative flex items-center justify-center border w-6rem h-16 cursor-pointer text-lg font-medium rounded text-white
+                    
+                              ${
+                                !isSameMonth(date, currentDate) ? 'other-month-day' :
+                                shouldDisable ? 'other-month-day' :
+                                events && events.some(event => event.titre === 'AID') ? 'bg-red-500' :
+                                events && events.some(event => event.titre === 'VACANCES') ? 'bg-green-700' :
+                                events && events.some(event => (event.titre !== 'AID' && event.titre !== 'VACANCES')) ? 'bg-yellow-500' :
+                                dateFns.isSaturday(date) ? 'other-month-day' :
+                                dateFns.isSunday(date) ? 'other-month-day' :
+                                dateFns.isToday(date) ? ' bg-lightBlue-600' :
+                                'bg-blueGray-700 ' }
+                                
+                              `}
+                            >
+                              {dateFns.format(date, formatOfDay)}
+                              <span className="text-xs absolute bottom-0 mb-1">
+                                ({rendezvousCount})
+                              </span>
+                            </span>
+                                );
+                              })
+                            ))}
+                          </div>
+                          {showCardRdv && <CardRdv isOpen={showCardRdv} onClose={handleCloseCardRdv} selectedDate={selectedDate} onSocialTrafficUpdate={onSocialTrafficUpdate} onAddPatientClick={onAddPatientClick} addedPatient={addedPatient}/>}
+                          </div>
+                      </div>
                   );
-                })
-              ))}
-            </div>
-            {showCardRdv && <CardRdv isOpen={showCardRdv} onClose={handleCloseCardRdv} selectedDate={selectedDate} onSocialTrafficUpdate={onSocialTrafficUpdate} onAddPatientClick={onAddPatientClick} addedPatient={addedPatient}/>}
-            </div>
-        </div>
-    );
 };
 
 export default CardCalendar;

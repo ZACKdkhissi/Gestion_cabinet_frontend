@@ -11,6 +11,7 @@ import Users from "views/admin/Users";
 import GestionPatients from "views/admin/GestionPatients";
 import GestionMedicaments from "views/admin/GestionMedicaments";
 import ConsulterRdv from "views/admin/ConsulterRdv";
+import GestionAddMedicaments from "views/admin/GestionAddMedicaments";
 
 
 export default function Admin() {
@@ -26,6 +27,8 @@ export default function Admin() {
           <Switch>
             <Route path="/admin/dashboard" exact component={Dashboard} />
             <Route path="/admin/gestionmedicaments" exact component={GestionMedicaments}/>
+            <Route path="/admin/AddMedicaments" exact component={GestionAddMedicaments}/>
+
             <Route path="/admin/registerUser" exact component={RegisterUser} />
             <Route path="/admin/afficherutilisateur" exact component={Users} />
             <Route path="/admin/gestionpatients" exact component={GestionPatients} />
