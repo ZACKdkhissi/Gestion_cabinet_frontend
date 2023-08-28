@@ -33,28 +33,30 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="flex flex-wrap mt-3">
-        <div className="w-full xl:w-6/12 mb-12 px-2">
-          <div>
-          <CardCalendar onSocialTrafficUpdate={handleSocialTrafficUpdate}
-            onAddPatientClick={handleAddPatientClick}
-            addedPatient={addedPatient} />
-          </div>
-          <div>
-          <CardEvents />
-          </div>
-        </div>
-        
-        <div className="w-full xl:w-6/12">
-          <CardSocialTraffic shouldFetch={shouldFetchSocialTraffic} />
-        </div>
-      </div>
-
-      {showAddPatient && (
+      {showAddPatient ? (
         <CardAddPatient
           onClose={() => setShowAddPatient(false)}
           onAddSuccess={handleAddPatientSuccess}
         />
+      ) : (
+        <div className="flex flex-wrap">
+          <div className="w-full xl:w-6/12 px-2">
+            <div>
+              <CardCalendar
+                onSocialTrafficUpdate={handleSocialTrafficUpdate}
+                onAddPatientClick={handleAddPatientClick}
+                addedPatient={addedPatient}
+              />
+            </div>
+            <div>
+              <CardEvents />
+            </div>
+          </div>
+
+          <div className="w-full xl:w-6/12">
+            <CardSocialTraffic shouldFetch={shouldFetchSocialTraffic} />
+          </div>
+        </div>
       )}
     </div>
   );

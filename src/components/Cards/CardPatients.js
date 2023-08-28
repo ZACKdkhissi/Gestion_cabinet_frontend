@@ -92,21 +92,21 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-bold lg:w-1/12">Patients</h3>
             <div className="flex items-center ">
-              <button onClick={onOpenAddPatient} className="mr-4 focus:outline-none" >
+              <button onClick={onOpenAddPatient} className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150  ml-2 mr-2">
                 <i className="fas fa-plus"></i>
               </button>
               <div className="relative flex items-center">
-                <span className="z-10 h-full leading-snug font-normal absolute text-blueGray-300 bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
-                  <i className="fas fa-search"></i>
-                </span>
-                <input
-                  type="text"
-                  placeholder="Chercher ici"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="border-0 px-3 py-3 pl-10 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring"
-                />
-              </div>
+  <span className="z-2 h-full leading-snug font-normal absolute text-blueGray-300 bg-transparent rounded text-base items-center justify-center w-8 pl-2 py-3">
+    <i className="fas fa-search"></i>
+  </span>
+  <input
+    type="text"
+    placeholder="Chercher ici"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="border-0 px-2 py-3 pl-10 pr-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
+  />
+</div>
             </div>
           </div>
         </div>

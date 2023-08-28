@@ -48,13 +48,11 @@ export default function Login() {
     const userInfo = await getUserInfo(token);
 
     if (userInfo) {
-      const isAdmin = userInfo.some(
-        (user) =>
-          user.roles &&
-          user.roles.filter((value) => value.roleCode === "ADMIN").length > 0
-      );
+      const isSecretaire = userInfo.some(user => user.roles.some(role => role.roleCode === "SECRETAIRE"));
+      const isDocteur = userInfo.some(user => user.roles.some(role => role.roleCode === "DOCTEUR"));
+      const isAdmin = userInfo.some(user => user.roles.some(role => role.roleCode === "ADMIN"));
 
-      if (isAdmin) {
+      if (isAdmin && !isSecretaire && !isDocteur) {
         history.push("/admin/AfficherUtilisateur");
       } else {
         history.push("/admin/dashboard");

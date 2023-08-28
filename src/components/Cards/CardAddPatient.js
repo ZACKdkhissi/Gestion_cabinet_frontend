@@ -14,11 +14,11 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
   const [isFatherSelected, setIsFatherSelected] = useState(false);
   const [allPatients, setAllPatients] = useState([]);
   const [userData, setUserData] = useState({
+    code_patient: "",
     email: "",
     nom: "",
     prenom: "",
     sexe: "Homme",
-    type_patient: "provisoire",
     cin: "",
     photo_cin: "",
     telephone: "",
@@ -50,19 +50,17 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
         date_de_naissance: formattedDate,
         [name]: value,
       });
+    }else if (name === "code_patient") {  
+        setUserData({
+          ...userData,
+          [name]: parseInt(value, 10),
+        });
     } else {
       setUserData({
         ...userData,
         [name]: value,
       });
     }
-  };
-
-  const handleTypePatientChange = (event) => {
-    setUserData({
-      ...userData,
-      type_patient: event.target.value,
-    });
   };
 
   const handleSexeChange = (event) => {
@@ -120,15 +118,19 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       return;
     }
 
-    const existingPatient = allPatients.find(
+    const matchingPatients = allPatients.filter(
       (patient) =>
         patient.nom === userData.nom &&
         patient.prenom === userData.prenom
     );
-    if (existingPatient) {
-      const confirmMessage = `Le patient ${userData.nom} ${userData.prenom} existe déjà dans la base de données.\n\nDonnées du patient :\n
-      ${existingPatient.cin} ${existingPatient.nom} ${existingPatient.prenom}`;
-    const confirmed = window.confirm(confirmMessage);
+    if (matchingPatients.length > 0) {
+      const confirmMessage = `Les patients suivants ont le même nom et prénom que ${userData.nom} ${userData.prenom} :\n\n`;
+    
+      const patientDetails = matchingPatients.map((patient) => (
+        `${patient.cin || "-"} ${patient.nom || "-"} ${patient.prenom || "-"}`
+      ));
+      const fullConfirmMessage = confirmMessage + patientDetails.join('\n');
+      const confirmed = window.confirm(fullConfirmMessage);
     if (confirmed) {
     const photoCinBase64 = userData.photo_cin.split(",")[1];
     apiInstance
@@ -260,37 +262,53 @@ const handleRemoveFather = () => {
         <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
           <form>
             <div className="flex flex-wrap py-4">
-              <div className="w-full lg:w-4/12 px-4">
+            <div className="w-full lg:w-3/12 px-4 flex flex-wrap">
+              <div className="relative w-1/2 mb-3">
                 <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-4"
-                  htmlFor="type_patient"
+                  className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                  htmlFor="code_patient"
                 >
-                  Type de Patient
+                  Code Patient
                 </label>
-                <div className="relative w-full mb-3">
-                  <label className="mr-2">
+                <input
+                  type="number"
+                  onChange={handleChange}
+                  name="code_patient"
+                  className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+                />
+              </div>
+              <div className="relative w-1/2 mb-3">
+                <label
+                  className="block uppercase text-blueGray-600 text-xs font-bold mb-4 ml-3"
+                  htmlFor="sexe"
+                >
+                  Genre
+                </label>
+                <div>
+                  <label className="w-full ml-3 mr-3 lg:w-1/2">
                     <input
                       type="radio"
-                      name="type_patient"
-                      value="officiel"
-                      checked={userData.type_patient === "officiel"}
-                      onChange={handleTypePatientChange}
+                      name="sexe"
+                      value="Homme"
+                      checked={userData.sexe === "Homme"}
+                      onChange={handleSexeChange}
                     />
-                    Officiel
+                    H
                   </label>
-                  <label>
+                  <label className="w-full ml-3 lg:w-1/2">
                     <input
                       type="radio"
-                      name="type_patient"
-                      value="provisoire"
-                      checked={userData.type_patient === "provisoire"}
-                      onChange={handleTypePatientChange}
+                      name="sexe"
+                      value="Femme"
+                      checked={userData.sexe === "Femme"}
+                      onChange={handleSexeChange}
                     />
-                    Provisoire
+                    F
                   </label>
                 </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
+            </div>
+              <div className="w-full lg:w-3/12 px-4">
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -307,7 +325,7 @@ const handleRemoveFather = () => {
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
+              <div className="w-full lg:w-3/12 px-4">
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -324,7 +342,44 @@ const handleRemoveFather = () => {
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
+              <div className="w-full lg:w-3/12 px-4">
+                        <label
+                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                          htmlFor="date_de_naissance"
+                        >
+                          Date de naissance
+                        </label>
+                        <div className="relative w-full mb-3">
+                  <input
+                    type="number"
+                    name="day"
+                    placeholder="Jour"
+                    value={userData.day}
+                    onChange={handleChange}
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1"
+                    style={{ width: "24.5%" }}
+                  />
+                  <input
+                    type="number"
+                    name="month"
+                    placeholder="Moi"
+                    value={userData.month}
+                    onChange={handleChange}
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1 m-1"
+                    style={{ width: "24.5%" }}
+                  />
+                  <input
+                    type="number"
+                    name="year"
+                    placeholder="Année"
+                    value={userData.year}
+                    onChange={handleChange}
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150"
+                    style={{ width: "47%" }}
+                  />
+                </div>
+              </div>
+              <div className="w-full lg:w-3/12 px-4">
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -380,108 +435,7 @@ const handleRemoveFather = () => {
                   )}
                 </div>
               </div>
-                      <div className="w-full lg:w-4/12 px-4">
-                        <label
-                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                          htmlFor="date_de_naissance"
-                        >
-                          Date de naissance
-                        </label>
-                        <div className="relative w-full mb-3">
-                  <input
-                    type="number"
-                    name="day"
-                    placeholder="Jour"
-                    value={userData.day}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1"
-                    style={{ width: "24%" }}
-                  />
-                  <input
-                    type="number"
-                    name="month"
-                    placeholder="Moi"
-                    value={userData.month}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1 m-1"
-                    style={{ width: "24%" }}
-                  />
-                  <input
-                    type="number"
-                    name="year"
-                    placeholder="Année"
-                    value={userData.year}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150"
-                    style={{ width: "49%" }}
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-              <div className="relative w-full mb-3">
-                <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-4"
-                  htmlFor="sexe"
-                >
-                  Genre
-                </label>
-                <div>
-                  <label className="mr-2">
-                    <input
-                      type="radio"
-                      name="sexe"
-                      value="Homme"
-                      checked={userData.sexe === "Homme"}
-                      onChange={handleSexeChange}
-                    />
-                    Homme
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="sexe"
-                      value="Femme"
-                      checked={userData.sexe === "Femme"}
-                      onChange={handleSexeChange}
-                    />
-                    Femme
-                  </label>
-                </div>
-              </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="telephone"
-                  >
-                    Téléphone
-                  </label>
-                  <input
-                    type="tel"
-                    name="telephone"
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="email"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-4/12 px-4">
+              <div className="w-full lg:w-3/12 px-4">
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -497,7 +451,39 @@ const handleRemoveFather = () => {
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
+              <div className="w-full lg:w-3/12 px-4">
+                <div className="relative w-full mb-3">
+                  <label
+                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                    htmlFor="telephone"
+                  >
+                    Téléphone
+                  </label>
+                  <input
+                    type="tel"
+                    name="telephone"
+                    onChange={handleChange}
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  />
+                </div>
+              </div>
+              <div className="w-full lg:w-3/12 px-4">
+                <div className="relative w-full mb-3">
+                  <label
+                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                    htmlFor="email"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    onChange={handleChange}
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  />
+                </div>
+              </div>
+              <div className="w-full lg:w-3/12 px-4">
               <div className="relative w-full mb-3">
                 <label
                   className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -515,7 +501,7 @@ const handleRemoveFather = () => {
                 </select>
               </div>
               </div>
-              <div className="w-full lg:w-4/12 px-4">
+              <div className="w-full lg:w-3/12 px-4">
         <div className="relative w-full mb-3">
           <label
             className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -544,12 +530,13 @@ const handleRemoveFather = () => {
           {searchFieldValue.trim() !== "" && showSearchResults && searchResults.length > 0 && !isFatherSelected && (
             <div className="mt-2 border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
               {searchResults.map((father) => (
-                <div
+                <button
                   key={father.id_patient}
                   onClick={() => handleSelectFather(father)}
+                  className="w-full mt-2 border rounded text-sm"
                 >
-                  {`${father.nom} ${father.prenom}`}
-                </div>
+                  {`${father.code_patient || "-"} | ${father.nom} ${father.prenom}`}
+                </button>
               ))}
             </div>
           )}
