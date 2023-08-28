@@ -82,7 +82,7 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
       {showAppointmentModal && (
             <CardAddSansrdv onClose={() => setShowAppointmentModal(false)} patient={selectedPatient} />
       )}
-      <div  style={{ height: "9cm",maxHeight: "9cm", overflowY: "auto" }}
+      <div  style={{ height: "14cm",maxHeight: "14cm", overflowY: "auto" }}
         className={
           "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
           (color === "light" ? "bg-white" : "bg-lightBlue-900 text-white")
