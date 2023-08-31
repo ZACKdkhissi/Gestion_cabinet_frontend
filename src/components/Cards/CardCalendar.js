@@ -10,24 +10,56 @@ const formatOfDay = 'd';
 const formatOfWeek = 'eee';
 const formatOfWeekOptions = { locale: fr };
 const CardRdv = ({ onClose, selectedDate, onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
-    const generateTimeSlots = () => {
-      const startTime = dateFns.setHours(dateFns.startOfDay(selectedDate), 8);
-      const endTime = dateFns.setHours(dateFns.endOfDay(selectedDate), 18);
-      const timeSlots = [];
-      let currentTime = startTime;
+
+  const [timeSlots, setTimeSlots] = useState([]);
   
-      while (dateFns.isBefore(currentTime, endTime)) {
-        timeSlots.push(currentTime);
-        currentTime = dateFns.addMinutes(currentTime, 30);
+  useEffect(() => {
+    const fetchIntervalData = async () => {
+      try {
+        const response = await apiInstance.get(`/api/intervals/${dateFns.format(selectedDate, 'dd-MM-yyyy')}`);
+        if (response && response.data) {
+          const intervalData = response.data;
+          const startTime = dateFns.setHours(selectedDate, intervalData.startTime);
+          const endTime = dateFns.setHours(selectedDate, intervalData.endTime);
+          setTimeSlots(generateTimeSlots(startTime, endTime));
+        } else {
+
+          const defaultStartTime = dateFns.setHours(selectedDate, 8);
+          const defaultEndTime = dateFns.setHours(selectedDate, 19);
+          setTimeSlots(generateTimeSlots(defaultStartTime, defaultEndTime));
+        }
+      } catch (error) {
+        console.error('Error fetching interval data:', error);
+
+        
       }
-  
-      return timeSlots;
     };
+  
+    fetchIntervalData();
+  }, [selectedDate]);
+
+  const generateTimeSlots = (startTime, endTime) => {
+    const timeSlots = [];
+    let currentTime = startTime;
+  
+    while (dateFns.isBefore(currentTime, endTime)) {
+      timeSlots.push(currentTime);
+      currentTime = dateFns.addMinutes(currentTime, 30);
+    }
+  
+    return timeSlots;
+  };
+
+   
+
+
+
     const { token } = useContext(AuthContext);
     const [patients, setPatients] = useState([]);
     const apiInstance = createApiInstance(token);
     const [rendezvousData, setRendezvousData] = useState([]);
     const [selectedId,setSelectedId]= useState([]);
+
     const [selectedTypesError, setSelectedTypesError] = useState(generateTimeSlots(selectedDate).map(() => false));
 
     useEffect(() => {
@@ -221,6 +253,9 @@ const handleEventTypeChange = (e) => {
   }
 };
 
+
+
+
     return (
       <div className="absolute top-0 left-0 transform bg-blueGray-200 shadow-md rounded-lg w-full h-full p-6"
       style={{
@@ -317,7 +352,7 @@ const handleEventTypeChange = (e) => {
             </tr>
             </thead>
             <tbody>
-  {generateTimeSlots().map((timeSlot, index) => {
+  {timeSlots.map((timeSlot, index) => {
     
     const rendezVousTrouve = existRendez(dateFns.format(timeSlot, "HH:mm"), rendezvousData);
     
