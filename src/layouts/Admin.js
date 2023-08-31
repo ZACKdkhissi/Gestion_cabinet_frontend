@@ -6,11 +6,10 @@ import AdminNavbar from "components/Navbars/AdminNavbar.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
 import Dashboard from "views/admin/Dashboard.js";
 import { AuthProvider } from "contexts/AuthContext";
-import RegisterUser from "views/admin/RegisterUser";
-import Users from "views/admin/Users";
 import GestionPatients from "views/admin/GestionPatients";
 import GestionMedicaments from "views/admin/GestionMedicaments";
 import ConsulterRdv from "views/admin/ConsulterRdv";
+import GestionUtilisateurs from "views/admin/GestionUtilisateurs";
 import GestionAddMedicaments from "views/admin/GestionAddMedicaments";
 import Parametrage from "views/admin/Parametrage";
 
@@ -27,14 +26,11 @@ export default function Admin() {
         <div className="px-4 md:px-10 mx-auto w-full -m-24">
           <Switch>
             <Route path="/admin/dashboard" exact component={Dashboard} />
-            <Route path="/admin/gestionmedicaments" exact component={GestionMedicaments}/>
-            <Route path="/admin/AddMedicaments" exact component={GestionAddMedicaments}/>
-
-            <Route path="/admin/registerUser" exact component={RegisterUser} />
-            <Route path="/admin/afficherutilisateur" exact component={Users} />
-            <Route path="/admin/gestionpatients" exact component={GestionPatients} />
+            <Route path="/admin/gestion_medicaments" exact component={GestionMedicaments}/>
+            <Route path="/admin/gestion_utilisateurs" exact component={GestionUtilisateurs} />
+            <Route path="/admin/gestion_patients" exact component={GestionPatients} />
+            <Route path="/admin/consulter_rdv_:nom_:prenom" component={ConsulterRdv} />
             <Route path="/admin/parametrageTemps" exact component={Parametrage} />
-            <Route path="/admin/consulterRdv-:nom-:prenom" component={ConsulterRdv} />
             <Redirect from="/admin" to="/admin/dashboard" />
           </Switch>
         </div>

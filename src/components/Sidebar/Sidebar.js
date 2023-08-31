@@ -23,7 +23,6 @@ export default function Sidebar() {
   const isAdmin = userInfo.some(user => user.roles.some(role => role.roleCode === "ADMIN"));
 
 
-
   return (
     <>
       <nav className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
@@ -37,7 +36,7 @@ export default function Sidebar() {
           </button>
           <Link
             className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
-            to={isAdmin && !isSecretaire && !isDocteur? "/admin/AfficherUtilisateur" : "/admin/dashboard"}
+            to={isAdmin && !isSecretaire && !isDocteur ? "/admin/gestion_utilisateurs" : "/admin/dashboard"}
           >
             Gestion Cabinet
           </Link>
@@ -57,7 +56,7 @@ export default function Sidebar() {
                 <div className="w-6/12">
                   <Link
                     className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
-                    to={isAdmin && !isSecretaire && !isDocteur? "/admin/AfficherUtilisateur" : "/admin/dashboard"}
+                    to={isAdmin && !isSecretaire && !isDocteur? "/admin/gestion_utilisateurs" : "/admin/dashboard"}
                   >
                     Gestion Cabinet
                   </Link>
@@ -105,16 +104,16 @@ export default function Sidebar() {
                       <Link
                         className={
                           "text-xs uppercase py-3 font-bold block " +
-                          (window.location.href.indexOf("/admin/gestionpatients") !== -1
+                          (window.location.href.indexOf("/admin/gestion_patients") !== -1
                             ? "text-lightBlue-500 hover:text-lightBlue-600"
                             : "text-blueGray-700 hover:text-blueGray-500")
                         }
-                        to="/admin/gestionpatients"
+                        to="/admin/gestion_patients"
                       >
                         <i
                           className={
                             "fas fa-user-circle mr-2 text-sm " +
-                            (window.location.href.indexOf("/admin/gestionpatients") !== -1
+                            (window.location.href.indexOf("/admin/gestion_patients") !== -1
                               ? "opacity-75"
                               : "text-black")
                           }
@@ -132,16 +131,16 @@ export default function Sidebar() {
                       <Link
                         className={
                           "text-xs uppercase py-3 font-bold block " +
-                          (window.location.href.indexOf("/admin/AfficherUtilisateur") !== -1
+                          (window.location.href.indexOf("/admin/gestion_utilisateurs") !== -1
                             ? "text-lightBlue-500 hover:text-lightBlue-600"
                             : "text-blueGray-700 hover:text-blueGray-500")
                         }
-                        to="/admin/AfficherUtilisateur"
+                        to="/admin/gestion_utilisateurs"
                       >
                         <i
                           className={
                             "fas fa-user mr-2 text-sm " +
-                            (window.location.href.indexOf("/admin/AfficherUtilisateur") !== -1
+                            (window.location.href.indexOf("/admin/gestion_utilisateurs") !== -1
                               ? "opacity-75"
                               : "text-black")
                           }
@@ -153,16 +152,16 @@ export default function Sidebar() {
                       <Link
                         className={
                           "text-xs uppercase py-3 font-bold block " +
-                          (window.location.href.indexOf("/admin/gestionmedicaments") !== -1
+                          (window.location.href.indexOf("/admin/gestion_medicaments") !== -1
                             ? "text-lightBlue-500 hover:text-lightBlue-600"
                             : "text-blueGray-700 hover:text-blueGray-500")
                         }
-                        to="/admin/gestionmedicaments"
+                        to="/admin/gestion_medicaments"
                       >
                         <i
                           className={
                             "fas fa-pills mr-2 text-sm " +
-                            (window.location.href.indexOf("/admin/gestionmedicaments") !== -1
+                            (window.location.href.indexOf("/admin/gestion_medicaments") !== -1
                               ? "opacity-75"
                               : "text-black")
                           }

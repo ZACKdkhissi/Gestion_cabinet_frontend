@@ -18,8 +18,9 @@ export default function CardSocialTraffic({shouldFetch}) {
   const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
   const filteredData1 = data1.filter(rendez => {
     const rendezDate = rendez.date;
-    return rendezDate === formattedDate;
+    return rendezDate === formattedDate && rendez.statut === 0;
   });
+  const filteredRendezvous = data.filter(rendez => rendez.statut === 0);  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,7 +102,7 @@ export default function CardSocialTraffic({shouldFetch}) {
 
   const navigateToConsulter = (rendez) => {
     history.push({
-      pathname: `/admin/consulterRdv-${rendez.patient.nom}-${rendez.patient.prenom}`,
+      pathname: `/admin/consulter_rdv_${rendez.patient.nom}_${rendez.patient.prenom}`,
       state: { rendez: rendez },
     });
   };
@@ -302,7 +303,7 @@ export default function CardSocialTraffic({shouldFetch}) {
               </tr>
             </thead>
             <tbody>
-            {data.map( rendez => (
+            {filteredRendezvous.map( rendez => (
               <tr key={rendez.id_rdv}>
                 <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
                   {rendez.heure}

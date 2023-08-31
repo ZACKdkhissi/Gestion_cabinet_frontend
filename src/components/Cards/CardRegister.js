@@ -1,11 +1,12 @@
 import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-export default function CardRegister() {
+export default function CardRegister({onAddSuccess}) {
 
-    const [showAlert, setShowAlert] = useState(false);
-  const [alertType, setAlertType] = useState('success'); // 'success' ou 'error'
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState('success');
   const [alertMessage, setAlertMessage] = useState('');
 
     const { token } = useContext(AuthContext);
@@ -46,48 +47,76 @@ export default function CardRegister() {
     
       const handleSubmit = (event) => {
         event.preventDefault();
-        apiInstance.post('http://localhost:8080/api/v1/register', userData)
+        apiInstance.post('/api/v1/register', userData)
           .then((response) => {
-            console.log('User registered successfully:', response.data);
-            // Ajoutez ici le code pour gérer la réponse de l'API si nécessaire.
+            onAddSuccess();
             setShowAlert(true);
-        setAlertType('success');
-        setAlertMessage('User registered successfully.');
+            setAlertType('success');
+            setAlertMessage("Utilisateur crée avec succès!");
           })
           .catch((error) => {
-            console.error('Error registering user:', error);
-            // Ajoutez ici le code pour gérer les erreurs si nécessaire.
             setShowAlert(true);
-            setAlertType('error');
-            setAlertMessage('Error registering user. Please try again.');
+            setAlertType("error");
+            setAlertMessage("Problème technique !");
           });
       };
+      const history = useHistory();
+      const fieldsNotEmpty = useRef(false);
+      useEffect(() => {
+        const inputFields = ['username','password', 'email'];
+        const hasFieldsNotEmpty = inputFields.some((fieldName) => {
+          const value = userData[fieldName];
+          return typeof value === 'string' && value.trim() !== '';
+        });
+        fieldsNotEmpty.current = hasFieldsNotEmpty;
+        const handleBeforeUnload = (event) => {
+          if (fieldsNotEmpty.current) {
+            event.preventDefault();
+            event.returnValue = "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?";
+          }
+        };
+    
+        const unblock = history.block((location, action) => {
+          if (fieldsNotEmpty.current) {
+            const confirmed = window.confirm("Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?");
+            if (!confirmed) {
+              return false;
+            }
+          }
+          return true;
+        });
+    
+        const cleanup = () => {
+          window.removeEventListener("beforeunload", handleBeforeUnload);
+          unblock();
+        };
+    
+        if (fieldsNotEmpty.current) {
+          window.addEventListener("beforeunload", handleBeforeUnload);
+        }
+    
+        return cleanup;
+      }, [history,userData]);
       
   return (
     <>
-      <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-100 border-0">
-        <div className="rounded-t bg-white mb-0 px-6 py-6">
-          <div className="text-center flex justify-between">
-            <div className="lg:w-1/12 px-4">
-               <h6 className="text-blueGray-700 text-xl font-bold">Ajouter Compte</h6>
-            </div>
-
-           
-            
-            
+       <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-100 border-0"
+       style={{ height: "14cm",maxHeight: "14cm", overflowY: "auto" }}>
+    <div className="rounded-t bg-white mb-0 px-4 py-3">
+      <div className="text-center flex">
+      <h6 className="text-blueGray-700 text-xl font-bold uppercase">
+                Ajouter un utilisateur
+              </h6>
           </div>
         </div>
         <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
-          <form>
-            <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">
-              Ajouter Utilisateur
-            </h6>
-            <div className="flex flex-wrap">
-              <div className="w-full lg:w-6/12 px-4">
-                <div className="relative w-full mb-3">
+       <form>
+       <div className="flex flex-wrap py-4">
+              <div className="w-full px-4">
+                <div className="relative mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="grid-password"
+                    htmlFor="username"
                   >
                     Username
                   </label>
@@ -96,36 +125,16 @@ export default function CardRegister() {
                     name="username"
                     value={userData.username}
                     onChange={handleChange}
+                    autoComplete="off"
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                     />
                 </div>
               </div>
-              <div className="w-full lg:w-6/12 px-4">
-                <div className="relative w-full mb-3">
+              <div className="w-full px-4">
+                <div className="relative mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="grid-password"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={userData.email}
-                    onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                    />
-                </div>
-               </div>
-
-             
-
-              
-              <div className="w-full lg:w-6/12 px-4">
-                <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                    htmlFor="grid-password"
+                    htmlFor=" password"
                   >
                     Mot de passe
                   </label>
@@ -134,27 +143,41 @@ export default function CardRegister() {
                     name="password"
                     value={userData.password}
                     onChange={handleChange}
+                    autoComplete="off"
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                     />
                 </div>
               </div>
-              <div className="w-full lg:w-6/12 px-4">
-                        <label
-                                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                                    htmlFor="roles"
-                        >
+              <div className="w-full px-4">
+                <div className="relative mb-3">
+                  <label
+                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                    htmlFor="email"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={userData.email}
+                    onChange={handleChange}
+                    autoComplete="off"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                    />
+                </div>
+               </div>
+              <div className="w-full px-4">
+              <div className="relative mb-3">
+           <label
+            className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+            htmlFor="roles"
+          >
           Roles
         </label>
-        
-
-
-        
-        <div className="space-x-2">
-        
           <label>
             <input
               type="checkbox"
-              className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
+              className="form-checkbox h-5 w-5 text-lightBlue-600 justify-center border rounded-full ml-1 mr-1"
               name="roles"
               value="ADMIN"
               checked={userData.roles.includes('ADMIN')}
@@ -162,11 +185,10 @@ export default function CardRegister() {
             />
             Admin
           </label>
-          &nbsp;
           <label>
             <input
               type="checkbox"
-              className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
+              className="form-checkbox h-5 w-5 text-lightBlue-600 justify-center border rounded-full ml-1 mr-1"
               name="roles"
               value="DOCTEUR"
               checked={userData.roles.includes('DOCTEUR')}
@@ -174,11 +196,10 @@ export default function CardRegister() {
             />
             Docteur
           </label>
-          &nbsp;
           <label>
             <input
               type="checkbox"
-              className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
+              className="form-checkbox h-5 w-5 text-lightBlue-600 justify-center border rounded-full ml-1 mr-1"
               name="roles"
               value="SECRETAIRE"
               checked={userData.roles.includes('SECRETAIRE')}
@@ -186,14 +207,13 @@ export default function CardRegister() {
             />
             Secretaire
           </label>
-          &nbsp;
           <label>
             <input
               type="checkbox"
-              className="form-checkbox text-sky-500 h-5 w-5 text-lightBlue-600 justify-center border rounded-full"
+              className="form-checkbox h-5 w-5 text-lightBlue-600 justify-center rounded-full ml-1 mr-1"
               name="roles"
               value="INFERMIERE"
-              checked={userData.roles.includes('NURSE')}
+              checked={userData.roles.includes('INFERMIERE')}
               onChange={handleRoleChange}
             />
             Infermière
@@ -201,27 +221,20 @@ export default function CardRegister() {
         </div>
       </div>
             </div>
-
-
-            <br></br>
-
+            <div className="flex justify-center">
             <button
-              className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 w-full ease-linear transition-all duration-150"
+             className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-4/12 ease-linear transition-all duration-150"
              type="submit"
               onClick={handleSubmit}
-            >Register
+            >Ajouter
                 </button>
-
+                </div>
                 {showAlert && (
-        <div
-          className={`${
-            alertType === 'success' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'
-          } border-l-4 border-green-700 p-4 mt-4`}
-        >
-          {alertMessage}
-        </div>
+        <div className="mt-10">
+        {alertType === "error" ? <i className="fa fa-times-circle mr-2"></i> : <i className="fa fa-check-circle mr-2"></i>}
+        {alertMessage}
+      </div>
       )}
-            
           </form>
         </div>
       </div>

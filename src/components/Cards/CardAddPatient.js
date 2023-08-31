@@ -1,6 +1,7 @@
 import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 export default function CardAddPatient({ onClose, onAddSuccess }) {
   const [showAlert, setShowAlert] = useState(false);
@@ -50,11 +51,21 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
         date_de_naissance: formattedDate,
         [name]: value,
       });
-    }else if (name === "code_patient") {  
-        setUserData({
-          ...userData,
-          [name]: parseInt(value, 10),
-        });
+    } else if (name === "code_patient") {
+      setUserData({
+        ...userData,
+        [name]: parseInt(value, 10),
+      });
+    } else if (name === "prenom") {
+      setUserData({
+        ...userData,
+        [name]: value.charAt(0).toUpperCase() + value.slice(1),
+      });
+    } else if (name === "nom") {
+      setUserData({
+        ...userData,
+        [name]: value.toUpperCase(),
+      });
     } else {
       setUserData({
         ...userData,
@@ -98,7 +109,7 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
         setAllPatients(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching all patients:", error);
+
       });
       // eslint-disable-next-line
   }, []);
@@ -136,11 +147,9 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     apiInstance
     .post("/api/patients/", { ...userData, photo_cin: photoCinBase64 })
     .then((response) => {
-      console.log(response.data);
       onAddSuccess(response.data);
     })
     .catch((error) => {
-      console.error(error);
       setShowAlert(true);
       setAlertType("error");
       setAlertMessage("Problème technique !");
@@ -151,11 +160,10 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
     apiInstance
     .post("/api/patients/", { ...userData, photo_cin: photoCinBase64 })
     .then((response) => {
-      console.log(response.data);
+
       onAddSuccess(response.data);
     })
     .catch((error) => {
-      console.error(error);
       setShowAlert(true);
       setAlertType("error");
       setAlertMessage("Problème technique !");
@@ -178,7 +186,9 @@ const handleSearchFather = (event) => {
         setShowSearchResults(true);
       })
       .catch((error) => {
-        console.error("Error searching for father:", error);
+        setShowAlert(true);
+        setAlertType("error");
+        setAlertMessage("Problème technique !");
       });
   } else {
     setSearchResults([]);
@@ -205,38 +215,6 @@ const handleRemoveFather = () => {
   setIsFatherSelected(false);
   setSearchFieldValue("");
 };
-
-  const fieldsNotEmpty = useRef(false);
-  useEffect(() => {
-    const hasFieldsNotEmpty = Object.values(userData).some((value) => value && typeof value === "string");
-    fieldsNotEmpty.current = hasFieldsNotEmpty;
-  }, [userData]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      if (fieldsNotEmpty.current) {
-        event.preventDefault();
-        event.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
-  const handleKeyUp = (event) => {
-    const { name, value } = event.target;
-    if (name === "nom" || name === "prenom") {
-      setUserData((prevUserData) => ({
-        ...prevUserData,
-        [name]: value.toUpperCase(),
-      }));
-    }
-  };
-
   const handleRemovePhoto = () => {
           setUserData((prevUserData) => ({
         ...prevUserData,
@@ -244,17 +222,67 @@ const handleRemoveFather = () => {
       }));
   };
 
+      const history = useHistory();
+      const fieldsNotEmpty = useRef(false);
+      useEffect(() => {
+        const inputFields = ['code_patient', 'nom', 'prenom', 'cin', 'email', 'telephone', 'ville'];
+        const hasFieldsNotEmpty = inputFields.some((fieldName) => {
+          const value = userData[fieldName];
+          return typeof value === 'string' && value.trim() !== '';
+        });
+        fieldsNotEmpty.current = hasFieldsNotEmpty;
+        const handleBeforeUnload = (event) => {
+          if (fieldsNotEmpty.current) {
+            event.preventDefault();
+            event.returnValue = "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?";
+          }
+        };
+    
+        const unblock = history.block((location, action) => {
+          if (fieldsNotEmpty.current) {
+            const confirmed = window.confirm("Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?");
+            if (!confirmed) {
+              return false;
+            }
+          }
+          return true;
+        });
+    
+        const cleanup = () => {
+          window.removeEventListener("beforeunload", handleBeforeUnload);
+          unblock();
+        };
+    
+        if (fieldsNotEmpty.current) {
+          window.addEventListener("beforeunload", handleBeforeUnload);
+        }
+    
+        return cleanup;
+      }, [history,userData]);
+
+  const handleReturnButtonClick = () => {
+    if (fieldsNotEmpty.current) {
+      const confirmed = window.confirm(
+        "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?"
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+    onClose();
+  };
+
   return (
     <>
       <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-100 border-0">
         <div className="rounded-t bg-white mb-0 px-4 py-3">
           <div className="text-center flex">
-          <div className=" mr-4">
-            <button onClick={onClose} className="focus:outline-none">
+            <div className=" mr-4">
+            <button onClick={handleReturnButtonClick} className="focus:outline-none">
                 <i className="fas fa-arrow-left"></i>
               </button>
             </div>
-              <h6 className="text-blueGray-700 text-xl font-bold">
+              <h6 className="text-blueGray-700 text-xl font-bold uppercase">
                 Ajouter un Patient
               </h6>
           </div>
@@ -319,9 +347,8 @@ const handleRemoveFather = () => {
                   <input
                     type="text"
                     onChange={handleChange}
-                    onKeyUp={handleKeyUp}
                     name="nom"
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                   />
                 </div>
               </div>
@@ -336,9 +363,8 @@ const handleRemoveFather = () => {
                   <input
                     type="text"
                     name="prenom"
-                    onKeyUp={handleKeyUp}
                     onChange={handleChange}
-                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                   />
                 </div>
               </div>

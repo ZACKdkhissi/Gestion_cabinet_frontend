@@ -1,6 +1,7 @@
 import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
 import React, {useContext, useEffect, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 export default function CardModifyPatient({ patient, onEditSuccess }) {
   const [showAlert, setShowAlert] = useState(false);
@@ -47,12 +48,22 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
         date_de_naissance: formattedDate,
         [name]: value,
       });
-    }else if (name === "code_patient" && name ) {
+    } else if (name === "code_patient") {
       setUserData({
         ...userData,
         [name]: parseInt(value, 10),
       });
-    }  else {
+    } else if (name === "prenom") {
+      setUserData({
+        ...userData,
+        [name]: value.charAt(0).toUpperCase() + value.slice(1),
+      });
+    } else if (name === "nom") {
+      setUserData({
+        ...userData,
+        [name]: value.toUpperCase(),
+      });
+    } else {
       setUserData({
         ...userData,
         [name]: value,
@@ -159,38 +170,57 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
       });
   };
 
-  const fieldsNotEmpty = useRef(false);
-  useEffect(() => {
-    const hasFieldsNotEmpty = Object.values(userData).some(
-      (value) => value && typeof value === "string"
-    );
-    fieldsNotEmpty.current = hasFieldsNotEmpty;
-  }, [userData]);
+  const history = useHistory();
+      const fieldsNotEmpty = useRef(false);
+      useEffect(() => {
+        const inputFields = ['code_patient', 'nom', 'prenom', 'cin', 'email', 'telephone', 'ville'];
+        const hasFieldsNotEmpty = inputFields.some((fieldName) => {
+          const value = userData[fieldName];
+          return typeof value === 'string' && value.trim() !== '';
+        });
+        fieldsNotEmpty.current = hasFieldsNotEmpty;
+        const handleBeforeUnload = (event) => {
+          if (fieldsNotEmpty.current) {
+            event.preventDefault();
+            event.returnValue = "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?";
+          }
+        };
+    
+        const unblock = history.block((location, action) => {
+          if (fieldsNotEmpty.current) {
+            const confirmed = window.confirm("Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?");
+            if (!confirmed) {
+              return false;
+            }
+          }
+          return true;
+        });
+    
+        const cleanup = () => {
+          window.removeEventListener("beforeunload", handleBeforeUnload);
+          unblock();
+        };
+    
+        if (fieldsNotEmpty.current) {
+          window.addEventListener("beforeunload", handleBeforeUnload);
+        }
+    
+        return cleanup;
+      }, [history,userData]);
 
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      if (fieldsNotEmpty.current) {
-        event.preventDefault();
-        event.returnValue = "";
+
+  const handleReturnButtonClick = () => {
+    if (fieldsNotEmpty.current) {
+      const confirmed = window.confirm(
+        "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?"
+      );
+      if (!confirmed) {
+        return;
       }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
-  const handleKeyUp = (event) => {
-    const { name, value } = event.target;
-    if (name === "nom" || name === "prenom") {
-      setUserData((prevUserData) => ({
-        ...prevUserData,
-        [name]: value.toUpperCase(),
-      }));
     }
+    onEditSuccess(patient);
   };
+
   const handleRemovePhoto = () => {
     if (userData.newphoto_cin) {
       setUserData((prevUserData) => ({
@@ -255,7 +285,7 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
         <div className="rounded-t bg-white mb-0 px-4 py-3">
           <div className="text-center flex">
             <div className="mr-4">
-              <button onClick={() => onEditSuccess(patient)} className="focus:outline-none">
+              <button onClick={handleReturnButtonClick} className="focus:outline-none">
                 <i className="fas fa-arrow-left"></i>
               </button>
             </div>
@@ -323,10 +353,9 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
         <input
           type="text"
           onChange={handleChange}
-          onKeyUp={handleKeyUp}
           name="nom"
           value={userData.nom}
-          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
         />
       </div>
     </div>
@@ -342,9 +371,8 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
           type="text"
           name="prenom"
           value={userData.prenom}
-          onKeyUp={handleKeyUp}
           onChange={handleChange}
-          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 uppercase"
+          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
         />
       </div>
     </div>

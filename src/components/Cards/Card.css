@@ -950,3 +950,12 @@ background-color: rgb(147 197 253);}
   background-color: #e4e9f4; /* Remplacez cette valeur par la couleur bg-blueGray-200 (#f3f4f6 est une approximation) */
   z-index: 10;
 }
+
+.h-3 {
+  height: 0.75rem;
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+

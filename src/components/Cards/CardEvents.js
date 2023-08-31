@@ -44,33 +44,55 @@ export default function CardEvents() {
   return (
     <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"  
     style={{ height: "5.9cm",maxHeight: "5.9cm", overflowY: "auto" }}>
-      <div>
-        <div style={{marginLeft:'0.5cm'}}>
-          <div className="rounded-t mb-0 px-4 py-3 border-0" style={{ display: 'flex', alignItems: 'center' }}>
-           <h3 className="font-semibold text-sm text-blueGray-700 uppercase">Les événements</h3>
-            <span className="cercle mr-1"  style={{marginLeft:'3cm'}} ></span>VACANCES
-            <span className="cercle1 mr-1" style={{marginLeft:'0.5cm'}}></span>AID
-            <span className="cercle2 mr-1" style={{marginLeft:'0.5cm'}}></span>REMARQUE
-          </div>
+      <div className="rounded-t mb-0 px-4 py-3 border-0 text-center" >
+          <div className="flex justify-between items-center">
+          <div className="px-4">
+              <h3 className="font-semibold text-sm text-blueGray-700 uppercase">
+                Evénements
+              </h3>
+            </div>
+            <div className="flex items-center">
+              <span
+                style={{
+                  width: window.innerWidth >= 768 ? "1.25rem" : "0.75rem",
+                  height: window.innerWidth >= 768 ? "1.25rem" : "0.75rem",
+                }}
+                className="rounded-full bg-green-500 ml-2 text-white"
+              ></span>
+              <p className="text-xs ml-1">Vacances</p>
+              <span
+                style={{
+                  width: window.innerWidth >= 768 ? "1.25rem" : "0.75rem",
+                  height: window.innerWidth >= 768 ? "1.25rem" : "0.75rem",
+                }}
+                className="rounded-full bg-red-500 ml-2"
+              ></span>
+              <p className="text-xs ml-1">Aid</p>
+              <span
+                style={{
+                  width: window.innerWidth >= 768 ? "1.25rem" : "0.75rem",
+                  height: window.innerWidth >= 768 ? "1.25rem" : "0.75rem",
+                }}
+                className="rounded-full bg-yellow-500 ml-2"
+              ></span>
+              <p className="text-xs ml-1">Remarque</p>
+            </div>
         </div>
-
-       
-
+        </div>
         <div className="block w-full overflow-x-auto">
-          <table className="items-center w-full bg-transparent border-collapse">
+        <table className="items-center w-full bg-transparent border-collapse">
             <thead className="thead-light">
               <tr>
                 <th className="px-6 bg-blueGray-50 text-blueGray-500  border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap text-left font-semibold">
-                  from date:
+                  date de départ
                 </th>
                 <th className="px-6 bg-blueGray-50 text-blueGray-500  border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
-                  to date:  
+                  date de fin
                 </th>
                 <th className="px-6 bg-blueGray-50 text-blueGray-500  border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
-                  titre  
+                  titre
                 </th>
-                <th className="px-6 bg-blueGray-50 text-blueGray-500  border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">
-                  Action  
+                <th className="px-6 bg-blueGray-50 text-blueGray-500  border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">  
                 </th>
                 
               </tr>
@@ -101,7 +123,6 @@ export default function CardEvents() {
           </table>
       </div>
     
-    </div>
     </div>
 
   );

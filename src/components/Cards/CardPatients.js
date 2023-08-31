@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import PropTypes from "prop-types";
 import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
 import { differenceInYears} from "date-fns";
 import CardAddSansrdv from "./CardAddSansrdv";
 
-export default function CardPatients({ color, onOpenAddPatient, onViewProfile }) {
+export default function CardPatients({onOpenAddPatient, onViewProfile }) {
   const { token } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [patients, setPatients] = useState([]);
@@ -33,15 +32,16 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
   useEffect(() => {
     const query = searchQuery.toLowerCase();
     const filtered = patients.filter((patient) => {
-      const { cin, nom, prenom } = patient;
+      const { code_patient, nom, prenom } = patient;
+      const codePatientString = code_patient ? code_patient.toString() : ''; // Check if code_patient is null
       return (
-        cin.toLowerCase().includes(query) ||
+        codePatientString.includes(query) ||
         nom.toLowerCase().includes(query) ||
         prenom.toLowerCase().includes(query)
       );
     });
     setFilteredPatients(filtered);
-  }, [searchQuery, patients]);
+}, [searchQuery, patients]);  
 
   const handleDeletePatient = (patientId) => {
     const confirmDelete = window.confirm(
@@ -78,19 +78,18 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
   };
 
   return (
-    <div >
+    <div>
       {showAppointmentModal && (
             <CardAddSansrdv onClose={() => setShowAppointmentModal(false)} patient={selectedPatient} />
       )}
       <div  style={{ height: "14cm",maxHeight: "14cm", overflowY: "auto" }}
         className={
-          "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
-          (color === "light" ? "bg-white" : "bg-lightBlue-900 text-white")
+          "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white"
         }
       >
         <div className="rounded-t mb-0 px-4 py-3 border-0 text-center" >
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-bold lg:w-1/12">Patients</h3>
+            <h3 className="text-xl font-bold lg:w-1/12 uppercase">Liste des patients</h3>
             <div className="flex items-center ">
               <button onClick={onOpenAddPatient} className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150  ml-2 mr-2">
                 <i className="fas fa-plus"></i>
@@ -116,56 +115,45 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
               <tr>
                 <th
                   className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100 "
                   }
                 >
                   Nom et prénom
                 </th>
                 <th
                   className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100 min-w-140-px"
+                  }
+                >
+                  Code
+                </th>
+                <th
+                  className={
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100 min-w-140-px"
                   }
                 >
                   Age
                 </th>
                 <th
                   className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100 min-w-140-px"
                   }
                 >
                   Date de naissance
                 </th>
                 <th
                   className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                   }
                 ></th>
                 <th
                   className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                   }
                 ></th>
                 <th
                   className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                   }
                 ></th>
               </tr>
@@ -179,15 +167,20 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
                 const dateOfBirth = parseDateFromString(patient.date_de_naissance);
                 const age = differenceInYears(new Date(), dateOfBirth);return (
                 <tr key={patient.id_patient}>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
                     {patient.nom && patient.prenom
                       ? `${patient.nom} ${patient.prenom}`
                       : "-"}
                   </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                    {patient.code_patient
+                      ? `${patient.code_patient}`
+                      : "-"}
+                  </td>
+                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left min-w-140-px">
                     {age || "-"}
                   </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
+                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left min-w-140-px">
                     {patient.date_de_naissance || "-"}
                   </td>
                   <td className="border-t-0 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
@@ -233,11 +226,4 @@ export default function CardPatients({ color, onOpenAddPatient, onViewProfile })
   );
 }
 
-CardPatients.defaultProps = {
-  color: "light",
-};
 
-CardPatients.propTypes = {
-  color: PropTypes.oneOf(["light", "dark"]),
-  onOpenAddPatient: PropTypes.func.isRequired,
-};
