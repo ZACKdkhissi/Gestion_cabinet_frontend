@@ -1,13 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-
-// components
-
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
-export default function CardAfficherUser({ color }) {
+export default function CardAfficherUser({onAddSuccess}) {
     const { token } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const apiInstance = createApiInstance(token);
@@ -19,127 +14,90 @@ export default function CardAfficherUser({ color }) {
               setUsers(response.data);
             })
             .catch((error) => {
-              console.error("Erreur lors de la récupération des utilisateurs :", error);
             });
         
-            //eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
+            //eslint-disable-next-line
+      }, [onAddSuccess]);
 
       const handleDelete = (userId) => {
         const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
         if(confirmDelete){
         apiInstance.delete(`/api/v1/users/${userId}`)
           .then((response) => {
-            console.log('User deleted successfully:', response.data);
             setUsers(users.filter((user) => user.id !== userId));
           })
           .catch((error) => {
-            console.error('Error deleting user:', error);
           });}
       };
 
+      const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredUtilisateurs = users.filter((user) =>
+  user.username.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
   return (
     <>
-      <div
+       <div  style={{ height: "14cm",maxHeight: "14cm", overflowY: "auto" }}
         className={
-          "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
-          (color === "light" ? "bg-white" : "bg-lightBlue-900 text-white")
+          "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white"
         }
       >
-        <div className="rounded-t mb-0 px-4 py-3 border-0">
-          <div className="flex flex-wrap items-center">
-            <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-            <div className="text-center flex justify-between">
-            <div className="lg:w-6/12 px-4">
-               <h6 className="text-blueGray-700 text-xl font-bold">Les utilisateurs</h6>
-            </div>
+        <div className="rounded-t mb-0 px-4 py-3 border-0 text-center" >
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold lg:w-1/12 uppercase">Liste des Utilisateurs</h3>
+            <div className="flex items-center ">
+                <div className="relative flex items-center">
+  <span className="z-2 h-full leading-snug font-normal absolute text-blueGray-300 bg-transparent rounded text-base items-center justify-center w-8 pl-2 py-3">
+    <i className="fas fa-search"></i>
+              </span>
+                <input
+                  type="text"
+                  placeholder="Chercher ici"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
 
-            <div className="lg:w-3/12 px-4 ">
-              <button className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-1 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 w-full ease-linear transition-all duration-150"
-              ><Link to="/admin/registerUser">Ajouter un Utilisateur</Link></button>
-            </div>        
-          </div>
+                  className="border-0 px-2 py-3 pl-10 pr-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
+                />
+              </div>   
+              </div>
             </div>
           </div>
-        </div>
-        <div className="block w-full overflow-x-auto"   style={{ height: "9cm",maxHeight: "9cm", overflowY: "auto" }}>
-          {/* Projects table */}
+          <div className="block w-full overflow-x-auto">
           <table className="items-center w-full bg-transparent border-collapse">
             <thead>
               <tr>
-                <th
-                  className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                  }
-                >
+              <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                   Username
                 </th>
-                <th
-                  className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                  }
-                >
+                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px">
                   Email
                 </th>
-                <th
-                  className={
-                    "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center " +
-                    (color === "light"
-                      ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                      : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
-                  }
-                >
-                  Actions
+                <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px">
                 </th>
-                
-                
-                
-               
               </tr>
             </thead>
             <tbody>
-            {users.map((user) => (
+            {filteredUtilisateurs.map((user) => (
               <tr key={user.id}>
-                
-               
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  <div className="">
-                    {user.username}
-                  </div>
+                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                  {user.username}
                 </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                  <div className="">
+                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left min-w-140-px">
                     {user.email}
-                  </div>
                 </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center ">
-                <div className="">
+                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center min-w-140-px">
                     <i onClick={() => handleDelete(user.id)} className="fas fa-trash-alt mr-3 text-lg text-red-500 "></i>
-                </div>
                 </td>
-                
               </tr>))}
-              
-             
-              
             </tbody>
           </table>
-        </div>
-      </div>
+          </div>
+    </div>
     </>
   );
 }
-
-CardAfficherUser.defaultProps = {
-  color: "light",
-};
-
-CardAfficherUser.propTypes = {
-  color: PropTypes.oneOf(["light", "dark"]),
-};

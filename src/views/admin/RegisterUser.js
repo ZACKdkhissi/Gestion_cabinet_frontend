@@ -7,9 +7,7 @@ export default function RegisterUser() {
     const { token } = useContext(AuthContext);
   
 
-  // Check if the user is authenticated (has a valid token)
   if (!token) {
-    // Redirect to the login page if not authenticated
     return <Redirect to="/auth/login" />;
   }
 

@@ -112,7 +112,7 @@ export default function CardConsulterRdv({patient}) {
     <>
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg text-sm">
       <div className="relative w-full text-blueGray-600 lg:w-full py-4 text-center">
-          <h3 className="text-xl font-semibold leading-normal text-blueGray-700">{patient.nom} {patient.prenom}</h3>
+          <h3 className="text-xl font-semibold leading-normal text-blueGray-700">{patient.nom} {patient.prenom} ({age || "-"} ans)</h3>
         </div>
             <div className="flex flex-wrap text-center text-sm">
             <div className="relative w-full mb-3 text-blueGray-600 lg:w-4/12">
@@ -122,13 +122,10 @@ export default function CardConsulterRdv({patient}) {
                 Date de naissance: <span className="font-semibold uppercase">{patient.date_de_naissance || "-"}</span>
             </div>
             <div className="relative w-full mb-3 text-blueGray-600 lg:w-4/12">
-            Age: <span className="font-semibold uppercase">{age || "-"}</span>
-            </div>
-            <div className="relative w-full mb-3 text-blueGray-600 lg:w-4/12">
                 Sexe: <span className="font-semibold uppercase">{patient.sexe || "-"}</span>
             </div>
             <div className="relative w-full mb-3 text-blueGray-600  lg:w-4/12">
-                Telephone: <span className="font-semibold uppercase">{patient.telephone || "-"}</span>
+                Téléphone: <span className="font-semibold uppercase">{patient.telephone || "-"}</span>
             </div>
             <div className="relative w-full mb-3 text-blueGray-600  lg:w-4/12">
                 Ville: <span className="font-semibold uppercase">{patient.ville || "-"}</span>

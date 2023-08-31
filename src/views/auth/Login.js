@@ -53,7 +53,7 @@ export default function Login() {
       const isAdmin = userInfo.some(user => user.roles.some(role => role.roleCode === "ADMIN"));
 
       if (isAdmin && !isSecretaire && !isDocteur) {
-        history.push("/admin/AfficherUtilisateur");
+        history.push("/admin/gestion_utilisateurs");
       } else {
         history.push("/admin/dashboard");
       }
