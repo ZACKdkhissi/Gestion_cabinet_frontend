@@ -366,7 +366,7 @@
             {dateFns.format(timeSlot, "HH:mm")}
           </td>
           <td className="border-t px-3 py-2 text-left border-l-0 border-r-0 whitespace-nowrap">
-            {rendezVousTrouve.patient.cin} | {rendezVousTrouve.patient.nom} {rendezVousTrouve.patient.prenom}
+            {rendezVousTrouve.patient.cin ? `${rendezVousTrouve.patient.cin} | ${rendezVousTrouve.patient.nom} ${rendezVousTrouve.patient.prenom}` : `${rendezVousTrouve.patient.nom} ${rendezVousTrouve.patient.prenom}`}
           </td>
           <td className="border-t px-3 py-2 text-left border-l-0 border-r-0 whitespace-nowrap">
             {rendezVousTrouve.type}

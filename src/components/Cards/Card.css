@@ -978,3 +978,13 @@ background-color: rgb(147 197 253);}
   background: linear-gradient(to left, rgb(239, 68, 68), rgb(31, 140, 109), rgb(252, 186, 6));
   color: white;
 }
+
+/* Flex-1 Class */
+.flex-1 {
+  flex: 1; /* Equal distribution of available space among flex items */
+}
+
+/* Flex-2 Class */
+.flex-2 {
+  flex: 2; /* Items with .flex-2 will take twice the space of .flex-1 items */
+}

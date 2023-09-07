@@ -337,7 +337,7 @@ const handleRemoveFather = () => {
               </div>
             </div>
               <div className="w-full lg:w-3/12 px-4">
-                <div className="relative mb-3">
+                <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                     htmlFor="nom"
@@ -368,14 +368,14 @@ const handleRemoveFather = () => {
                   />
                 </div>
               </div>
-              <div className=" lg:w-3/12 px-4">
-                        <label
-                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                          htmlFor="date_de_naissance"
-                        >
-                          Date de naissance
-                        </label>
-                        <div className="relative w-full mb-3">
+              <div className="w-full lg:w-3/12 px-4">
+                <div className="relative w-full mb-3">
+                  <label
+                  className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                  htmlFor="date_de_naissance"
+                  >
+                  Date de naissance
+                  </label>
                   <input
                     type="number"
                     name="day"
@@ -383,7 +383,7 @@ const handleRemoveFather = () => {
                     value={userData.day}
                     onChange={handleChange}
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1"
-                    style={{ width: "24.5%" }}
+                    style={{ maxWidth: "24%" }}
                   />
                   <input
                     type="number"
@@ -392,7 +392,7 @@ const handleRemoveFather = () => {
                     value={userData.month}
                     onChange={handleChange}
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 mr-1 m-1"
-                    style={{ width: "24.5%" }}
+                    style={{ maxWidth: "24%" }}
                   />
                   <input
                     type="number"
@@ -401,7 +401,7 @@ const handleRemoveFather = () => {
                     value={userData.year}
                     onChange={handleChange}
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150"
-                    style={{ width: "47%" }}
+                    style={{ maxWidth: "44.5%" }}
                   />
                 </div>
               </div>
