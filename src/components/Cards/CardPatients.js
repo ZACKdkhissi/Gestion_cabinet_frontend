@@ -33,7 +33,7 @@ export default function CardPatients({onOpenAddPatient, onViewProfile }) {
     const query = searchQuery.toLowerCase();
     const filtered = patients.filter((patient) => {
       const { code_patient, nom, prenom } = patient;
-      const codePatientString = code_patient ? code_patient.toString() : ''; // Check if code_patient is null
+      const codePatientString = code_patient ? code_patient.toString() : '';
       return (
         codePatientString.includes(query) ||
         nom.toLowerCase().includes(query) ||
@@ -95,17 +95,17 @@ export default function CardPatients({onOpenAddPatient, onViewProfile }) {
                 <i className="fas fa-plus"></i>
               </button>
               <div className="relative flex items-center">
-  <span className="z-2 h-full leading-snug font-normal absolute text-blueGray-300 bg-transparent rounded text-base items-center justify-center w-8 pl-2 py-3">
-    <i className="fas fa-search"></i>
-  </span>
-  <input
-    type="text"
-    placeholder="Chercher ici"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    className="border-0 px-2 py-3 pl-10 pr-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
-  />
-</div>
+                <span className="z-2 h-full leading-snug font-normal absolute text-blueGray-300 bg-transparent rounded text-base items-center justify-center w-8 pl-2 py-3">
+                  <i className="fas fa-search"></i>
+                </span>
+                <input
+                  type="text"
+                  placeholder="Chercher ici"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="border-0 px-2 py-3 pl-10 pr-2 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -161,9 +161,9 @@ export default function CardPatients({onOpenAddPatient, onViewProfile }) {
             <tbody>
               {filteredPatients.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((patient) => {
                 const createdDate = new Date(patient.created_at);
-                const twoDaysAgo = new Date();
-                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2); 
-                const isNewPatient = createdDate >= twoDaysAgo;
+                const filterdate = new Date();
+                filterdate.setDate(filterdate.getDate() - 30); 
+                const isNewPatient = createdDate >= filterdate;
                 const dateOfBirth = parseDateFromString(patient.date_de_naissance);
                 const age = differenceInYears(new Date(), dateOfBirth);return (
                 <tr key={patient.id_patient}>

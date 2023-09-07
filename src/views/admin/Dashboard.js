@@ -1,10 +1,8 @@
 import React, { useContext, useState } from "react";
-import "./f1.css"
-
 import CardAddPatient from "components/Cards/CardAddPatient";
-import CardSocialTraffic from "components/Cards/CardSocialTraffic.js";
+import CardRdvTraffic from "components/Cards/CardRdvTraffic";
 import { AuthContext } from "contexts/AuthContext";
-import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
+import { Redirect } from "react-router-dom";
 import CardCalendar from "components/Cards/CardCalendar";
 import CardEvents from "components/Cards/CardEvents";
 
@@ -49,12 +47,11 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <CardEvents />
+              <CardEvents/>
             </div>
           </div>
-
           <div className="w-full xl:w-6/12">
-            <CardSocialTraffic shouldFetch={shouldFetchSocialTraffic} />
+            <CardRdvTraffic shouldFetch={shouldFetchSocialTraffic} />
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
 
-export default function CardAfficherUser({onAddSuccess}) {
+export default function CardUtilisateurs({onAddSuccess}) {
     const { token } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const apiInstance = createApiInstance(token);

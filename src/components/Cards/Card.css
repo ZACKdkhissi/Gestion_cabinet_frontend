@@ -959,3 +959,22 @@ background-color: rgb(147 197 253);}
   width: 0.75rem;
 }
 
+.aid-vacance {
+  background: linear-gradient(to left, rgb(239, 68, 68), rgb(31, 140, 109));
+  color: white;
+}
+
+.aid-others {
+  background: linear-gradient(to left,rgb(239, 68, 68), rgb(252, 186, 6));
+  color: white;
+}
+
+.vacance-others {
+  background: linear-gradient(to left, rgb(31, 140, 109), rgb(252, 186, 6));
+  color: white;
+}
+
+.all-three {
+  background: linear-gradient(to left, rgb(239, 68, 68), rgb(31, 140, 109), rgb(252, 186, 6));
+  color: white;
+}

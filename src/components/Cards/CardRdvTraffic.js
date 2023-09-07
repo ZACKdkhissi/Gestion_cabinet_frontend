@@ -8,7 +8,7 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { differenceInMinutes } from "date-fns";
 
 
-export default function CardSocialTraffic({shouldFetch}) {
+export default function CardRdvTraffic({shouldFetch}) {
   const [data, setData] = useState([]);
   const [data1, setData1] = useState([]);
   const { token } = useContext(AuthContext);
@@ -305,9 +305,9 @@ export default function CardSocialTraffic({shouldFetch}) {
             <tbody>
             {filteredRendezvous.map( rendez => (
               <tr key={rendez.id_rdv}>
-                <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
+                <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
                   {rendez.heure}
-                </th>
+                </td>
                 <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
                  {rendez.patient.nom} {rendez.patient.prenom}
                 </td>

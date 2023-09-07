@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
-
-
-
+import * as dateFns from "date-fns";
 
 export default function CardEvents() {
   const { token } = useContext(AuthContext);
@@ -12,7 +10,6 @@ export default function CardEvents() {
   const [events, setEvents] = useState([]); 
 
   useEffect(() => {
-       
     apiInstance.get("/api/events")
     .then((response) => {
       setEvents(response.data);
@@ -20,12 +17,9 @@ export default function CardEvents() {
     .catch((error) => {
       console.error("Erreur lors de la récupération des évenements :", error);
     });
-    // eslint-disable-next-line
-}, []);
+      // eslint-disable-next-line 
+  }, []);
 
- 
-
- 
   const handleDeleteEvent = (EvnId) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce événement ?");
     if(confirmDelete){
@@ -39,7 +33,24 @@ export default function CardEvents() {
         console.error(error);
       });}
   };
-  
+
+  const today = new Date();
+  const todayFormatted = dateFns.format(today, 'dd-MM-yyyy');
+
+  const filteredEvents = events.filter((event) => {
+    const toDateFormatted = dateFns.format(dateFns.parse(event.to_date, 'dd-MM-yyyy', new Date()), 'dd-MM-yyyy');
+    return toDateFormatted >= todayFormatted;
+  });
+
+  const groupedEvents = filteredEvents.reduce((groups, event) => {
+    const key = `${event.from_date}-${event.to_date}`;
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(event);
+    return groups;
+  }, {});
+
 
   return (
     <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"  
@@ -98,26 +109,40 @@ export default function CardEvents() {
               </tr>
             </thead>
             <tbody>
-            {events.map( event => (
-              <tr key={event.id}>
-                <td className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
-                  {event.from_date}
-                </td>
-                <td className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
-                 {event.to_date}
-                </td>
-                <th className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
-                 {event.titre} 
-                </th>
-                <td className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left">
-                <button
-                    className="text-red-500 text-sm font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none ml-1 mr-1 mb-1 ease-linear transition-all duration-150"
-                    onClick={() => handleDeleteEvent(event.id)}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                  </button>
-                </td>
-              </tr>
+            {Object.values(groupedEvents).map((group, index) => (
+              <React.Fragment key={index}>
+                {group.map((event, eventIndex) => (
+                  <tr key={event.id}>
+                    {eventIndex === 0 && (
+                      <>
+                        <td
+                          className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap text-left"
+                          rowSpan={group.length}
+                        >
+                          {event.from_date}
+                        </td>
+                        <td
+                          className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap text-left"
+                          rowSpan={group.length}
+                        >
+                          {event.to_date}
+                        </td>
+                      </>
+                    )}
+                    <td className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap text-left">
+                      {event.titre}
+                    </td>
+                    <td className="border-t-0 px-6  border-l-0 border-r-0 text-xs whitespace-nowrap text-left">
+                      <button
+                        className="text-red-500 text-sm font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none ml-1 mr-1 mb-1 ease-linear transition-all duration-150"
+                        onClick={() => handleDeleteEvent(event.id)}
+                      >
+                        <i className="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </React.Fragment>
             ))}
             </tbody>
           </table>

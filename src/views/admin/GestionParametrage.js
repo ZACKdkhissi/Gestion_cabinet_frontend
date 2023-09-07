@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { Redirect } from "react-router-dom";
 import { AuthContext } from "contexts/AuthContext";
-import ParametrageTemps from "components/Cards/ParametrageTemps";
+import ParametrageTemps from "components/Cards/CardParametrageTemps";
 
-export default function Parametrage() {
+export default function GestionParametrage() {
   const { token } = useContext(AuthContext);
 
   if (!token) {
@@ -11,10 +11,8 @@ export default function Parametrage() {
   }
 
   return (
-    <div className="flex flex-wrap mt-4">
-      <div className="w-full mb-12 px-4">
+      <div className="w-full px-2">
         <ParametrageTemps  />
       </div>
-    </div>
   );
 }

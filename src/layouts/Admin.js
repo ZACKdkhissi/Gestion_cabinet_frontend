@@ -10,8 +10,7 @@ import GestionPatients from "views/admin/GestionPatients";
 import GestionMedicaments from "views/admin/GestionMedicaments";
 import ConsulterRdv from "views/admin/ConsulterRdv";
 import GestionUtilisateurs from "views/admin/GestionUtilisateurs";
-import GestionAddMedicaments from "views/admin/GestionAddMedicaments";
-import Parametrage from "views/admin/Parametrage";
+import GestionParametrage from "views/admin/GestionParametrage";
 
 
 export default function Admin() {
@@ -30,7 +29,7 @@ export default function Admin() {
             <Route path="/admin/gestion_utilisateurs" exact component={GestionUtilisateurs} />
             <Route path="/admin/gestion_patients" exact component={GestionPatients} />
             <Route path="/admin/consulter_rdv_:nom_:prenom" component={ConsulterRdv} />
-            <Route path="/admin/parametrageTemps" exact component={Parametrage} />
+            <Route path="/admin/gestion_parametrage" exact component={GestionParametrage} />
             <Redirect from="/admin" to="/admin/dashboard" />
           </Switch>
         </div>

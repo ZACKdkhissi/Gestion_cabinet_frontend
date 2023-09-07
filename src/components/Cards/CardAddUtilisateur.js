@@ -3,7 +3,7 @@ import { AuthContext } from "contexts/AuthContext";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-export default function CardRegister({onAddSuccess}) {
+export default function CardAddUtilisateur({onAddSuccess}) {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState('success');

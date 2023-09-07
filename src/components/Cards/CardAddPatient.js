@@ -337,7 +337,7 @@ const handleRemoveFather = () => {
               </div>
             </div>
               <div className="w-full lg:w-3/12 px-4">
-                <div className="relative w-full mb-3">
+                <div className="relative mb-3">
                   <label
                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                     htmlFor="nom"
@@ -368,7 +368,7 @@ const handleRemoveFather = () => {
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-3/12 px-4">
+              <div className=" lg:w-3/12 px-4">
                         <label
                           className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                           htmlFor="date_de_naissance"

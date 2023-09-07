@@ -173,23 +173,23 @@ export default function Sidebar() {
                       <Link
                         className={
                           "text-xs uppercase py-3 font-bold block " +
-                          (window.location.href.indexOf("/admin/parametrageTemps") !== -1
+                          (window.location.href.indexOf("/admin/gestion_parametrage") !== -1
                             ? "text-lightBlue-500 hover:text-lightBlue-600"
                             : "text-blueGray-700 hover:text-blueGray-500")
                         }
-                        to="/admin/parametrageTemps"
+                        to="/admin/gestion_parametrage"
                       >
                         <i
                           className={
-                            "fas fa-pills mr-2 text-sm " +
-                            (window.location.href.indexOf("/admin/parametrageTemps") !== -1
+                            "fas fa-calendar-alt mr-2 text-sm " +
+                            (window.location.href.indexOf("/admin/gestion_parametrage") !== -1
                               ? "opacity-75"
                               : "text-black")
                           }
                         ></i>{" "}
                         Parametrage
                       </Link>
-                    </li>
+                    </li>  
                   </>
                 )}
               </ul>
