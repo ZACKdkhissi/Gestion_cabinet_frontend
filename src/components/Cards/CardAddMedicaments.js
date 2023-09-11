@@ -59,11 +59,12 @@ export default function CardAddMedicaments({onClose, onAddSuccess}) {
         setShowAlert(true);
       })
       .catch((error) => {
-        if (error.response && error.response.status === 400) {
           setAlertType("error");
           setAlertMessage(error); 
           setShowAlert(true);
-        }
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
       });
   };
 
@@ -85,8 +86,11 @@ export default function CardAddMedicaments({onClose, onAddSuccess}) {
       })
       .catch((error) => {
         setAlertType("error");
-          setAlertMessage(error); 
-          setShowAlert(true);
+        setAlertMessage(error); 
+        setShowAlert(true);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
       // eslint-disable-next-line
   }, []);

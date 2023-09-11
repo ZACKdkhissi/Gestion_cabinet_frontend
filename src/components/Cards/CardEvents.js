@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
 import * as dateFns from "date-fns";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function CardEvents() {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
-
+  const history = useHistory();
   const [events, setEvents] = useState([]); 
 
   useEffect(() => {
@@ -15,7 +16,6 @@ export default function CardEvents() {
       setEvents(response.data);
     })
     .catch((error) => {
-      console.error("Erreur lors de la récupération des évenements :", error);
     });
       // eslint-disable-next-line 
   }, []);
@@ -25,12 +25,12 @@ export default function CardEvents() {
     if(confirmDelete){
     apiInstance.delete(`/api/events/${EvnId}`)
       .then((response) => {
-        console.log(response.data);
         setEvents(events.filter((evnt) => evnt.id !== EvnId));
-        window.location.reload();
       })
       .catch((error) => {
-        console.error(error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });}
   };
 
@@ -105,7 +105,6 @@ export default function CardEvents() {
                 </th>
                 <th className="px-6 bg-blueGray-50 text-blueGray-500  border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-120-px">  
                 </th>
-                
               </tr>
             </thead>
             <tbody>

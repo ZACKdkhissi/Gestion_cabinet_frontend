@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
 import { differenceInYears } from "date-fns";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 
 export default function CardConsulterRdv({patient}) {
@@ -15,6 +16,7 @@ export default function CardConsulterRdv({patient}) {
     updatedPatient.caractere || ""
   );
   const [isModifying, setIsModifying] = useState(false);
+  const history = useHistory();
 
   useEffect(() => {
     if (patient.id_parent) {
@@ -24,7 +26,9 @@ export default function CardConsulterRdv({patient}) {
           setFather(response.data);
         })
         .catch((error) => {
-          console.error("Error fetching father's information:", error);
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
         });
     }
     const interval = setInterval(() => {
@@ -46,7 +50,9 @@ export default function CardConsulterRdv({patient}) {
           setUpdatedPatient(updatedPatientData);
         })
         .catch((error) => {
-          console.error("Error fetching updated patient data:", error);
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
         });
     };
   
@@ -68,12 +74,13 @@ export default function CardConsulterRdv({patient}) {
       };
       apiInstance
         .put(`/api/patients/${patient.id_patient}`, updatedPatient)
-        .then(() => {
-          console.log("Character updated successfully");
+        .then((response) => {
           setIsModifying(false);
         })
         .catch((error) => {
-          console.error("Error updating character:", error);
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
         });
     }
   };

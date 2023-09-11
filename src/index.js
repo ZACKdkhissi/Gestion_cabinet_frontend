@@ -8,6 +8,7 @@ import Admin from "layouts/Admin.js";
 import Auth from "layouts/Auth.js";
 import Index from "views/Index.js";
 import { AuthProvider } from "contexts/AuthContext";
+import UnauthorizedPage from "components/Cards/Card401Page";
 
 ReactDOM.render(
   <AuthProvider>
@@ -16,6 +17,7 @@ ReactDOM.render(
         <Route path="/admin" component={Admin} />
         <Route path="/auth" component={Auth} />
         <Route path="/" exact component={Index} />
+        <Route path="/401" exact component={UnauthorizedPage} />
         <Redirect from="*" to="/" />
       </Switch>
     </BrowserRouter>

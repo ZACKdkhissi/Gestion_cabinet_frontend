@@ -128,7 +128,9 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
           setIsFatherSelected(false);
         }
       } catch (error) {
-        console.error("Error fetching father information:", error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     };
 
@@ -159,14 +161,15 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
         photo_cin: photoCinBase64,
       })
       .then((response) => {
-        console.log(response.data);
         onEditSuccess(response.data);
       })
       .catch((error) => {
-        console.error(error);
         setShowAlert(true);
         setAlertType("error");
         setAlertMessage("Problème technique !");
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
   };
 
@@ -250,7 +253,9 @@ export default function CardModifyPatient({ patient, onEditSuccess }) {
           setShowSearchResults(true);
         })
         .catch((error) => {
-          console.error("Error searching for father:", error);
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
         });
     } else {
       setSearchResults([]);

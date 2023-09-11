@@ -153,6 +153,9 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       setShowAlert(true);
       setAlertType("error");
       setAlertMessage("Problème technique !");
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
     });
   }else{return;}
     }else{
@@ -167,6 +170,9 @@ export default function CardAddPatient({ onClose, onAddSuccess }) {
       setShowAlert(true);
       setAlertType("error");
       setAlertMessage("Problème technique !");
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
     });
   }
 };
@@ -189,6 +195,9 @@ const handleSearchFather = (event) => {
         setShowAlert(true);
         setAlertType("error");
         setAlertMessage("Problème technique !");
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
   } else {
     setSearchResults([]);

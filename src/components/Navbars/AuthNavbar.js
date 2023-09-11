@@ -1,8 +1,7 @@
-/*eslint-disable*/
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function Navbar(props) {
+export default function Navbar() {
   return (
     <>
       <nav className="top-0 absolute z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg">

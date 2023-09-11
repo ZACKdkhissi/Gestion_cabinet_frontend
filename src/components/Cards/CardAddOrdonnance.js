@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import Select from 'react-select';
 import "./Card.css"
 import jsPDF from 'jspdf';
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function CardAddOrdonnance({ rendez }) {
   const [medicaments, setMedicaments] = useState([]);
@@ -17,7 +18,7 @@ export default function CardAddOrdonnance({ rendez }) {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
   const [currentDate, setCurrentDate] = useState("");
-  const [posologieDropdown, setPosologieDropdown] = useState("1fois");
+  const [posologieDropdown, setPosologieDropdown] = useState("1 fois");
   const [pendantNumber, setPendantNumber] = useState(1);
   const [pendantUnit, setPendantUnit] = useState("mois");
   const [selectedIdError, setSelectedIdError] = useState("");
@@ -27,17 +28,39 @@ export default function CardAddOrdonnance({ rendez }) {
   const [alertType, setAlertType] = useState("error");
   const [showAlert, setShowAlert] = useState(false);
   const [isKeypadVisible, setIsKeypadVisible] = useState(false);
+  const history = useHistory();
   const [isOrdonnanceSubmitted, setIsOrdonnanceSubmitted] = useState(false);
-
 
   useEffect(() => {
     apiInstance.get("api/medicaments").then((response) => {
       setMedicaments(response.data);
     });
-
+    apiInstance.get("/api/ordonnances").then((response) => {
+        const isRendezvous = rendez && rendez.heure;
+        const allOrdonnances = response.data;
+        const rendezIdToCompare = isRendezvous ? rendez.id_rdv : rendez.id_sans_rdv;
+        const matchingOrdonnance = allOrdonnances.find((ordonnance) => {
+        const rendezvousId = isRendezvous ? ordonnance.rendezvous?.id_rdv : ordonnance.sansrdv?.id_sans_rdv;
+        return rendezvousId === rendezIdToCompare;
+      });
+      if(matchingOrdonnance){
+        setIsOrdonnanceSubmitted(true);
+      }
+    });
     setCurrentDate(format(new Date(), "dd-MM-yyyy"));
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
     // eslint-disable-next-line
   }, []);
+
 
   const addMedication = async () => {
     setSelectedIdError("");
@@ -74,7 +97,6 @@ export default function CardAddOrdonnance({ rendez }) {
     try {
       const response = await apiInstance.get(`api/medicaments/${selectedId}`);
       const medicationDetails = response.data;
-  
       let newMedication = {};
       if (radioOption === 1) {
         newMedication = {
@@ -95,17 +117,52 @@ export default function CardAddOrdonnance({ rendez }) {
       setOrdonnanceMedicaments([...ordonnanceMedicaments, newMedication]);
       setPosologieFields(["", "", ""]);
       setPosologieFrequency("jour");
-      setPosologieDropdown("1fois");
+      setPosologieDropdown("1 fois");
       setQuand("");
       setPendantNumber(1);
       setPendantUnit("mois");
       setIsKeypadVisible(false);
+      setShowAlert(false);
+      setAlertMessage("");
     } catch (error) {
       setShowAlert(true);
       setAlertType("error");
       setAlertMessage("Une erreur s'est produite lors de la récupération des détails du médicament.");
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
     }
   };
+
+  const editMedication = (index) => {
+    const medication = ordonnanceMedicaments[index];
+    removeMedication(index);
+  
+    const posologieParts = medication.posologie.split('-');
+    if (posologieParts.length === 3) {
+      setSelectedId(medication.medicament.id_medicament);
+      setRadioOption(1);
+      setPosologieFields([
+        posologieParts[0],
+        posologieParts[1],
+        posologieParts[2].split('/')[0],
+      ]);
+      setPosologieFrequency(posologieParts[2].split('/')[1]);
+      setQuand(medication.quand);
+      setPendantNumber(parseInt(medication.pendant.split(' ')[0]));
+      setPendantUnit(medication.pendant.split(' ')[1]);
+    } else {
+      setSelectedId(medication.medicament.id_medicament);
+      setRadioOption(2);
+      setPosologieDropdown(medication.posologie.split('/')[0]);
+      setPosologieFrequency(medication.posologie.split('/')[1]);
+      setQuand(medication.quand);
+      setPendantNumber(parseInt(medication.pendant.split(' ')[0]));
+      setPendantUnit(medication.pendant.split(' ')[1]);
+    }
+  };
+  
+  
 
   const Keypad = ({ onValueSelected }) => {
     const keypadButtonLayout = [
@@ -115,7 +172,7 @@ export default function CardAddOrdonnance({ rendez }) {
       ["1", "2", "3"],
       ["0"]
     ];
-  
+
     return (
       <div className="bg-gray-200 rounded-lg shadow" style={{ width: "40%", margin: "0 auto" }}>
         <div>
@@ -161,34 +218,47 @@ export default function CardAddOrdonnance({ rendez }) {
     });
   };
 
-  const submitOrdonnance = () => {
-    if (ordonnanceMedicaments.length > 0) {
+  const submitOrdonnance = async () => {
+    try{
+      const response = await apiInstance.get("/api/ordonnances");
       const isRendezvous = rendez && rendez.heure;
-      const ordonnance = {
-        date: currentDate,
-        rendezvous: isRendezvous ? { id_rdv: rendez.id_rdv } : null,
-        sansrdv: !isRendezvous ? { id_sans_rdv: rendez.id_sans_rdv } : null,
-        ordonnanceMedicaments,
-      };
-
-      apiInstance
-        .post("/api/ordonnances", ordonnance)
-        .then(() => {
-          setShowAlert(true);
-          setIsOrdonnanceSubmitted(true);
-          setAlertType("success");
-          setMedicaments([]);
-          setAlertMessage("Ordonnance créée avec succès!");
-        })
-        .catch(() => {
+      const allOrdonnances = response.data;
+      const rendezIdToCompare = isRendezvous ? rendez.id_rdv : rendez.id_sans_rdv;
+      const matchingOrdonnance = allOrdonnances.find((ordonnance) => {
+        const rendezvousId = isRendezvous ? ordonnance.rendezvous?.id_rdv : ordonnance.sansrdv?.id_sans_rdv;
+        return rendezvousId === rendezIdToCompare;
+      });
+      if (!matchingOrdonnance) {
+        if (ordonnanceMedicaments.length > 0) {
+          const isRendezvous = rendez && rendez.heure;
+          const ordonnance = {
+            date: currentDate,
+            rendezvous: isRendezvous ? { id_rdv: rendez.id_rdv } : null,
+            sansrdv: !isRendezvous ? { id_sans_rdv: rendez.id_sans_rdv } : null,
+            ordonnanceMedicaments,
+          };
+          apiInstance.post("/api/ordonnances", ordonnance).then(() => {
+            setShowAlert(true);
+            setIsOrdonnanceSubmitted(true);
+            setAlertType("success");
+            setMedicaments([]);
+            setAlertMessage("Ordonnance créée avec succès!");
+          })
+          .catch(() => {
+            setShowAlert(true);
+            setAlertType("error");
+            setAlertMessage("Une erreur s'est produite lors de la création de l'ordonnance.");
+          });
+        } else {
           setShowAlert(true);
           setAlertType("error");
-          setAlertMessage("Une erreur s'est produite lors de la création de l'ordonnance.");
-        });
-    } else {
+          setAlertMessage("Veuillez ajouter au moins un médicament à l'ordonnance.");
+        }
+      }      
+    } catch {
       setShowAlert(true);
       setAlertType("error");
-      setAlertMessage("Veuillez ajouter au moins un médicament à l'ordonnance."); 
+      setAlertMessage("Une erreur s'est produite lors de la création de l'ordonnance."); 
     }
   };
 
@@ -202,43 +272,61 @@ export default function CardAddOrdonnance({ rendez }) {
   };
 
   const generatePDF = async () => {
-  try {
-    const response = await apiInstance.get("/api/ordonnances");
-    const data = response.data;
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-    doc.setFontSize(16);
-    doc.text("Ordonnance Médicale", 105, 15, null, null, "center");
-    doc.setFontSize(12);
-    doc.text(`Date: ${currentDate}`, 20, 30);
-    doc.text(`Nom du patient: ${rendez.patient.nom}`, 20, 40);
-    doc.text(`Prénom du patient: ${rendez.patient.prenom}`, 20, 50);
-    doc.setLineWidth(0.5);
-    doc.line(20, 55, 190, 55);
-    doc.setFontSize(14);
-    doc.text("Médicaments:", 20, 65);
-    let yOffset = 75;
-    data.forEach((ordonnance) => {
-      ordonnance.ordonnanceMedicaments.forEach((medication) => {
-        doc.setFontSize(12);
-        doc.text(`Médicament: ${medication.medicament.nom}`, 20, yOffset);
-        doc.text(`Posologie: ${medication.posologie}`, 20, yOffset + 10);
-        doc.text(`Quand: ${medication.quand}`, 20, yOffset + 20);
-        doc.text(`Pendant: ${medication.pendant}`, 20, yOffset + 30);
-        yOffset += 50;
+    try {
+      const response = await apiInstance.get("/api/ordonnances");
+      const isRendezvous = rendez && rendez.heure;
+      const allOrdonnances = response.data;
+      const rendezIdToCompare = isRendezvous ? rendez.id_rdv : rendez.id_sans_rdv;
+      const matchingOrdonnance = allOrdonnances.find((ordonnance) => {
+        const rendezvousId = isRendezvous ? ordonnance.rendezvous?.id_rdv : ordonnance.sansrdv?.id_sans_rdv;
+        return rendezvousId === rendezIdToCompare;
       });
-    });
-    const pdfName = `ordonnance_${rendez.patient.nom}_${rendez.patient.prenom}_${currentDate}.pdf`;
-    doc.save(pdfName);
-  } catch (error) {
-    console.error("Error fetching data from the API:", error);
-  }
-};
-
   
+      if (matchingOrdonnance) {
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+        doc.setFont(undefined, 'bold');
+        doc.setFontSize(14);
+        doc.text("Dr Moulay Hassan Alaoui", 20, 15);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'italic');
+        doc.text("Docteur en Endocrinologie, Diabétologie et Nutrition", 20, 20);
+        doc.setFont(undefined, 'normal');
+        doc.text("N 7, 2 Av. Prince Héritier, Tanger 90000", 130, 15);
+        doc.text("Tél: 0616210211", 166, 20);
+        doc.setFontSize(12);
+        doc.text(`Date:`, 20, 40);
+        doc.text(`Patient: ${rendez.patient.nom} ${rendez.patient.prenom}`, 20, 50);
+        doc.line(20, 55, 190, 55);
+        doc.setFontSize(14);
+        let yOffset = 75;
+        matchingOrdonnance.ordonnanceMedicaments.forEach((medication) => {
+          doc.setFontSize(12);
+          doc.setFont(undefined, 'bold');
+          doc.text(`${medication.medicament.nom}`, 20, yOffset);
+          doc.setFont(undefined, 'normal');
+          if (medication.posologie.split('-').length === 3) {
+            const [part1, part2, part3] = medication.posologie.split('-');
+            doc.text(`3 fois par ${part3.split('/')[1]} - matinée: ${part1}, après-midi: ${part2}, soir: ${part3.split('/')[0]}, ${medication.quand.toLowerCase()}, pendant ${medication.pendant.toLowerCase()}`, 20, yOffset + 7);
+        } else {
+          doc.text(`${medication.posologie.split('/')[0]} par ${medication.posologie.split('/')[1]}, ${medication.quand.toLowerCase()}, pendant ${medication.pendant.toLowerCase()}`, 20, yOffset + 7);
+        }
+          yOffset += 25;
+        });
+        doc.text("Signature & Cachet:", 150, 250);
+          const pdfName = `ordonnance_${rendez.patient.nom}_${rendez.patient.prenom}_${currentDate}.pdf`;
+          doc.save(pdfName);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
+    }
+  };
+
   return (
     <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg">
       <div className="relative w-full text-blueGray-600 lg:w-full py-4 text-center">
@@ -434,7 +522,10 @@ export default function CardAddOrdonnance({ rendez }) {
 
           <button
             onClick={addMedication}
-            className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-full"
+            className={`bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:w-full ${
+              isOrdonnanceSubmitted ? 'cursor-not-allowed opacity-50' : ''
+            }`}
+            disabled={isOrdonnanceSubmitted}
           >
             Ajouter Médicament
           </button>
@@ -445,10 +536,10 @@ export default function CardAddOrdonnance({ rendez }) {
             {ordonnanceMedicaments.map((medication, index) => (
               <li key={index}>
                 {medication.medicament.nom} - Posologie: {medication.posologie}, Quand: {medication.quand}, Pendant: {medication.pendant}
-                <span
-                  onClick={() => removeMedication(index)}
-                  className="cursor-pointer ml-2"
-                >
+                <button onClick={() => editMedication(index)} className="cursor-pointer ml-2">
+                <i className="fas fa-pen"></i>
+                </button>
+                <span onClick={() => removeMedication(index)} className="cursor-pointer ml-2">
                   <i className="fas fa-times"></i>
                 </span>
               </li>

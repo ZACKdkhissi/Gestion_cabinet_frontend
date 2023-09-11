@@ -3,6 +3,7 @@ import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
 import { differenceInYears} from "date-fns";
 import CardAddSansrdv from "./CardAddSansrdv";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function CardPatients({onOpenAddPatient, onViewProfile }) {
   const { token } = useContext(AuthContext);
@@ -12,6 +13,7 @@ export default function CardPatients({onOpenAddPatient, onViewProfile }) {
   const apiInstance = createApiInstance(token);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const history = useHistory();
 
   useEffect(() => {
     apiInstance
@@ -20,7 +22,9 @@ export default function CardPatients({onOpenAddPatient, onViewProfile }) {
         setPatients(response.data);
       })
       .catch((error) => {
-        console.error(error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
       //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -51,13 +55,14 @@ export default function CardPatients({onOpenAddPatient, onViewProfile }) {
       apiInstance
         .delete(`/api/patients/${patientId}`)
         .then((response) => {
-          console.log(response.data);
           setFilteredPatients((prevPatients) =>
             prevPatients.filter((patient) => patient.id_patient !== patientId)
           );
         })
         .catch((error) => {
-          console.error(error);
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
         });
     }
   };

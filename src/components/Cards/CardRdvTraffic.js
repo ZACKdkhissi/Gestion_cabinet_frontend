@@ -38,6 +38,9 @@ export default function CardRdvTraffic({shouldFetch}) {
   
         setData(dataWithLocalTime);
       } catch (error) {
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     };
   
@@ -62,6 +65,9 @@ export default function CardRdvTraffic({shouldFetch}) {
         const response = await apiInstance.get(apiUrl);
         setData1(response.data);
       } catch (error) {
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     };
     fetchData();
@@ -83,6 +89,9 @@ export default function CardRdvTraffic({shouldFetch}) {
       const response = await apiInstance.get(apiUrl);
       setData1(response.data);
     } catch (error) {
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
     }
   };
 
@@ -95,6 +104,9 @@ export default function CardRdvTraffic({shouldFetch}) {
         setData1(updatedData1);
         fetchDataSansRdv();
       } catch (error) {
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     }
   };
@@ -143,6 +155,9 @@ export default function CardRdvTraffic({shouldFetch}) {
         
     } catch (error) {
       window.alert("Pas d'ordonnance pour ce patient !");
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
     }
   };
 

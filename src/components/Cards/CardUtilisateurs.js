@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function CardUtilisateurs({onAddSuccess}) {
     const { token } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const apiInstance = createApiInstance(token);
+    const history = useHistory();
 
     useEffect(() => {
        
@@ -27,6 +29,9 @@ export default function CardUtilisateurs({onAddSuccess}) {
             setUsers(users.filter((user) => user.id !== userId));
           })
           .catch((error) => {
+            if (error.response && error.response.status === 401) {
+              history.push('/401');
+            }
           });}
       };
 

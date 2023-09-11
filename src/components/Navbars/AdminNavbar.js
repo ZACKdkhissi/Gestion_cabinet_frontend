@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import UserDropdown from "components/Dropdowns/UserDropdown.js";
 import useUserInfo from "api/useUserInfo";
+import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function Navbar() {
   const userInfo = useUserInfo();
@@ -8,6 +10,7 @@ export default function Navbar() {
     userInfo.length > 0 && userInfo[0].username ? userInfo[0].username : "";
 
   const [isPageCollapsed, setPageCollapsed] = useState(false);
+  const location = useLocation();
 
   const updatePageCollapsed = () => {
     setPageCollapsed(window.innerWidth <= 767);
@@ -20,6 +23,16 @@ export default function Navbar() {
       window.removeEventListener("resize", updatePageCollapsed);
     };
   }, []);
+
+  const handleLinkClick = (event) => {
+    if (
+      !window.confirm(
+        "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?"
+      )
+    ) {
+      event.preventDefault()
+    }
+  };
 
   return (
     <>
@@ -36,8 +49,19 @@ export default function Navbar() {
               <i className="fas fa-sync-alt"></i>
             </button>
           )}
-          {!isPageCollapsed && (
+          {!isPageCollapsed && location.pathname === "/admin/dashboard" && (
             <span className="text-white font-semibold ml-2">Bonjour, {user}</span>
+          )}
+          {!isPageCollapsed && location.pathname.includes("/admin/consulter_rdv_") && (
+            <Link
+            className="bg-white text-lightBlue-600 active:bg-white font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+              to={"/admin/dashboard"}
+              onClick={handleLinkClick}
+            >
+              <i className="fa fa-arrow-left text-xs mr-1">
+              </i>
+              Revenir au tableau de bord
+            </Link>
           )}
           <ul className={`flex-col md:flex-row list-none items-center hidden md:flex`}>
             <UserDropdown />

@@ -4,7 +4,6 @@ import { AuthContext } from "contexts/AuthContext";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const UserDropdown = () => {
-  // dropdown props
   const [dropdownPopoverShow, setDropdownPopoverShow] = React.useState(false);
   const btnDropdownRef = React.createRef();
   const popoverDropdownRef = React.createRef();
@@ -29,9 +28,8 @@ const UserDropdown = () => {
 
   return (
     <>
-      <a
-        className="text-blueGray-500 block"
-        href="#maximoss"
+      <button
+        className="text-blueGray-500 block focus:outline-none"
         ref={btnDropdownRef}
         onClick={(e) => {
           e.preventDefault();
@@ -43,7 +41,7 @@ const UserDropdown = () => {
             <i className="fas fa-user align-middle border-none shadow-lg" style={{fontSize: '32px' }}></i>
           </span>
         </div>
-      </a>
+      </button>
       <div
         ref={popoverDropdownRef}
         className={
@@ -51,15 +49,14 @@ const UserDropdown = () => {
           "bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow-lg min-w-48"
         }
       >
-        <a
-          href="#maximoss"
+        <button
           className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
+            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700 focus:outline-none"
           }
           onClick={handleLogout}
         >
           Se déconnecter
-        </a>
+        </button>
       </div>
     </>
   );

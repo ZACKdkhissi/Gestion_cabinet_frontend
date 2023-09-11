@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 
 export default function CardProfilePatient({ patient, onClose, onEdit }) {
@@ -9,6 +10,7 @@ export default function CardProfilePatient({ patient, onClose, onEdit }) {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
   const [father, setFather] = useState(null);
+  const history = useHistory();
 
   useEffect(() => {
     if (patient.id_parent) {
@@ -18,7 +20,9 @@ export default function CardProfilePatient({ patient, onClose, onEdit }) {
           setFather(response.data);
         })
         .catch((error) => {
-          console.error("Error fetching father's information:", error);
+          if (error.response && error.response.status === 401) {
+            history.push('/401');
+          }
         });
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps

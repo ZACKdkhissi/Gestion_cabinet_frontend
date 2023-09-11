@@ -5,12 +5,13 @@
   import { AuthContext } from 'contexts/AuthContext';
   import createApiInstance from 'api/api';
   import Select from 'react-select';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
   const formatOfDay = 'd';
   const formatOfWeek = 'eee';
   const formatOfWeekOptions = { locale: fr };
   const CardRdv = ({ onClose, selectedDate, onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
-
+    const history = useHistory();
     const [timeSlots, setTimeSlots] = useState([]);
     
     useEffect(() => {
@@ -19,7 +20,6 @@
           const response = await apiInstance.get(`/api/intervals/${dateFns.format(selectedDate, 'dd-MM-yyyy')}`);
           if (response && response.data) {
             const intervalData = response.data;
-            console.log(intervalData)
             const startTime = dateFns.setHours(selectedDate, intervalData.startTime);
             const endTime = dateFns.setHours(selectedDate, intervalData.endTime);
             setTimeSlots(generateTimeSlots(startTime, endTime));
@@ -29,9 +29,6 @@
             setTimeSlots(generateTimeSlots(defaultStartTime, defaultEndTime));
           }
         } catch (error) {
-          console.error('Error fetching interval data:', error);
-
-          
         }
       };
     
@@ -72,7 +69,6 @@
         setPatients(sortedPatients);
           })
           .catch((error) => {
-            console.error(error);
           });
           //eslint-disable-next-line react-hooks/exhaustive-deps
         }, [addedPatient]);
@@ -82,15 +78,13 @@
         try {
           const response = await apiInstance.get(`http://localhost:8080/api/rendezvous/date/${dateFns.format(selectedDate, 'dd-MM-yyyy')}`);
           setRendezvousData(response.data);
-          console.log(response)
         } catch (error) {
-          console.error(error);
         }
       };
 
       fetchRendezvousData();
       //eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDate]);
+    }, [selectedDate,onSocialTrafficUpdate]);
     
       const [selectedTypes, setSelectedTypes] = useState(generateTimeSlots(selectedDate).map(() => ''));
 
@@ -121,37 +115,39 @@
         id_patient: selectedId,
       }
     };
-      try {
-        const response1 = await apiInstance.get(`/api/rendezvous/count/${selectedId}`);
-        const rendezvousCount = response1.data;
+  
+    try {
+      const rdvData = await apiInstance.get(`/api/rendezvous`);
+      const rdvDataFiltered = rdvData.data.filter((item) => item.statut === 0 && item.patient.id_patient === selectedId);
+      if (rdvDataFiltered.length > 0) {
+        const confirmationMessage = rdvDataFiltered.map((item) => {
+          return `Patient: ${item.patient.nom} ${item.patient.prenom}, Date: ${item.date}, Heure: ${item.heure}`;
+        }).join("\n");
 
-
-        if(rendezvousCount >= 1){
-          alert("le patient peut pas prendre un rendez vous!");
-          return;
-
-        }else{
-          const response = await apiInstance.post("/api/rendezvous", newRendezvous);
-          console.log(response);
-          const updatedData = await fetchUpdatedData();
-          setRendezvousData(updatedData);
-          onSocialTrafficUpdate();
-        }
+        const confirmed = window.confirm(`Ce patient a déjà des rendez-vous non traités:\n\n${confirmationMessage}\n\nVoulez-vous continuer?`);
         
-      } catch (error) {
-        console.log(error);
+        if (!confirmed) {
+          return;
+        }
       }
+      await apiInstance.post("/api/rendezvous", newRendezvous);
+      const updatedData = await fetchUpdatedData();
+      setRendezvousData(updatedData);
+      onSocialTrafficUpdate();        
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
+    }
   };
+  
 
 
   const fetchUpdatedData = async () => {
     try {
       const response = await apiInstance.get(`/api/rendezvous/date/${dateFns.format(selectedDate, 'dd-MM-yyyy')}`);
       return response.data;
-
     } catch (error) {
-      console.log("Error fetching updated data:", error);
-      throw error;
     }
   };
 
@@ -176,12 +172,12 @@
     if(confirmDelete){
     apiInstance.delete(`/api/rendezvous/${RdvId}`)
       .then((response) => {
-        console.log(response.data);
-        setRendezvousData(rendezvousData.filter((rendez) => rendez.id_rdv !== RdvId));
         onSocialTrafficUpdate();
       })
       .catch((error) => {
-        console.error(error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });}
   };
 
@@ -209,11 +205,10 @@
 
     apiInstance
       .post("/api/events", newEvent)
-      .then((response) => {
-        console.log(response);
-      })
       .catch((error) => {
-        console.log(error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
   };
 
@@ -447,7 +442,8 @@
       );
     };
 
-  const CardCalendar = ({onSocialTrafficUpdate, onAddPatientClick, addedPatient, date}) => {
+  const CardCalendar = ({onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
+      const history = useHistory();
       const [currentDate, setCurrentDate] = useState(new Date());
       const firstDay = dateFns.startOfMonth(currentDate);
       const lastDay = dateFns.lastDayOfMonth(currentDate);
@@ -481,24 +477,18 @@
     const apiInstance = createApiInstance(token);
     const [rendezvousCounts, setRendezvousCounts] = useState({});
     const fetchRendezvousCounts = async () => {
-      try {
           const counts = {};
           await Promise.all(totalDate.map(async (date) => {
           const formattedDate = dateFns.format(date, 'dd-MM-yyyy');
           try {
             const response = await apiInstance.get(`/api/rendezvous/date/count/${formattedDate}`);
-    
             if (response) {
               counts[formattedDate] = response.data;
             }
           } catch (error) {
-            console.error('Error fetching rendezvous count for date:', formattedDate, error);
           }
         }));
         setRendezvousCounts(counts);
-      } catch (error) {
-        console.error('Error fetching rendezvous counts:', error);
-      }
     };
 
     useEffect(() => {
@@ -534,7 +524,9 @@
             setEventsByDate(eventsByDate);
             setEventsFetched(true);
           } catch (error) {
-            console.error(error);
+            if (error.response && error.response.status === 401) {
+              history.push('/401');
+            }
           }
         };
         fetchEvents();

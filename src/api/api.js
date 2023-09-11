@@ -1,5 +1,3 @@
-// api.js
-
 import axios from "axios";
 
 const createApiInstance = (token) => {
@@ -9,7 +7,6 @@ const createApiInstance = (token) => {
 
   apiInstance.interceptors.request.use(
     (config) => {
-      // Add the token to the request headers
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }

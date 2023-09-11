@@ -47,6 +47,40 @@ export default function CardAddUtilisateur({onAddSuccess}) {
     
       const handleSubmit = (event) => {
         event.preventDefault();
+        const checkUsernameExists = (username) => {
+          try {
+            const response = apiInstance.get("/users");
+            const userList = response.data;
+            const exists = userList.some((user) => user.username === username);
+            return exists;
+          } catch (error) {
+            if (error.response && error.response.status === 401) {
+              history.push('/401');
+              return false;
+            }
+          }
+        };
+
+        if(checkUsernameExists(userData.username)){
+          setShowAlert(true);
+          setAlertType('error');
+          setAlertMessage('Cet utilisateur existe déjà!');
+          return;
+        }
+        if (!userData.username || !userData.password) {
+          setShowAlert(true);
+          setAlertType('error');
+          setAlertMessage('Nom d\'utilisateur et mot de passe sont requis!');
+          return;
+        }
+
+        if (userData.roles.length === 0) {
+          setShowAlert(true);
+          setAlertType('error');
+          setAlertMessage('Veuillez sélectionner au moins un rôle!');
+          return;
+        }
+        
         apiInstance.post('/api/v1/register', userData)
           .then((response) => {
             onAddSuccess();
@@ -58,6 +92,9 @@ export default function CardAddUtilisateur({onAddSuccess}) {
             setShowAlert(true);
             setAlertType("error");
             setAlertMessage("Problème technique !");
+            if (error.response && error.response.status === 401) {
+              history.push('/401');
+            }
           });
       };
       const history = useHistory();
@@ -127,6 +164,7 @@ export default function CardAddUtilisateur({onAddSuccess}) {
                     onChange={handleChange}
                     autoComplete="off"
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                    required
                     />
                 </div>
               </div>
@@ -145,6 +183,7 @@ export default function CardAddUtilisateur({onAddSuccess}) {
                     onChange={handleChange}
                     autoComplete="off"
                     className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                    required
                     />
                 </div>
               </div>

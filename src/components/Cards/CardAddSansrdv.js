@@ -1,11 +1,13 @@
 import React, { useContext, useState } from "react";
 import createApiInstance from "api/api";
 import { AuthContext } from "contexts/AuthContext";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const CardAddSansrdv = ({ onClose, patient }) => {
   const { token } = useContext(AuthContext);
   const [selectedType, setSelectedType] = useState("Consultation");
   const apiInstance = createApiInstance(token);
+  const history = useHistory();
 
   const handleTypeChange = (event) => {
     setSelectedType(event.target.value);
@@ -26,11 +28,12 @@ const CardAddSansrdv = ({ onClose, patient }) => {
     apiInstance
       .post("/api/sansrdv", sansRdvData)
       .then((response) => {
-        console.log(response.data);
         onClose();
       })
       .catch((error) => {
-        console.error(error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
   };
 

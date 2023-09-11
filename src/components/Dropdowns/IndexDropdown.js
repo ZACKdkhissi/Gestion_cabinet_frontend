@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { createPopper } from "@popperjs/core";
 
 const IndexDropdown = () => {
-  // dropdown props
   const [dropdownPopoverShow, setDropdownPopoverShow] = React.useState(false);
   const btnDropdownRef = React.createRef();
   const popoverDropdownRef = React.createRef();
@@ -18,9 +17,8 @@ const IndexDropdown = () => {
   };
   return (
     <>
-      <a
-        className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-        href="#maximoss"
+      <button
+        className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold focus:outline-none"
         ref={btnDropdownRef}
         onClick={(e) => {
           e.preventDefault();
@@ -28,7 +26,7 @@ const IndexDropdown = () => {
         }}
       >
         Menu      
-      </a>
+      </button>
       <div
         ref={popoverDropdownRef}
         className={

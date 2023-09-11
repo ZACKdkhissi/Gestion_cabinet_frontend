@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "contexts/AuthContext";
 import createApiInstance from "api/api";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function CardMedicaments({onOpenAddMedicament}) {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
-const [medicaments, setMedicaments] = useState([]); 
+  const [medicaments, setMedicaments] = useState([]); 
+  const history = useHistory();
   useEffect(() => {
     apiInstance
       .get("api/medicaments")
@@ -13,6 +15,9 @@ const [medicaments, setMedicaments] = useState([]);
         setMedicaments(response.data);
       })
       .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });
       //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -25,6 +30,9 @@ const [medicaments, setMedicaments] = useState([]);
         setMedicaments(medicaments.filter((mdc) => mdc.id_medicament !== MdcId));
       })
       .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       });}
   };
 
@@ -33,7 +41,6 @@ const [medicaments, setMedicaments] = useState([]);
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
-
   const filteredMedicaments = medicaments.filter((medicament) =>
   medicament.nom.toLowerCase().includes(searchTerm.toLowerCase())
 );

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import createApiInstance from 'api/api';
 import { AuthContext } from 'contexts/AuthContext';
 import { format } from 'date-fns';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 const ParametrageTemps = () => {
   const [date, setDate] = useState('');
@@ -11,6 +12,7 @@ const ParametrageTemps = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [outsideIntervalAppointments, setOutsideIntervalAppointments] = useState([]);
+  const history = useHistory();
 
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
@@ -20,7 +22,9 @@ const ParametrageTemps = () => {
       const response = await apiInstance.get(`/api/rendezvous/date/${formattedDate}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
       throw error;
     }
   };
@@ -32,7 +36,9 @@ const ParametrageTemps = () => {
         const response = await apiInstance.get('/api/intervals');
         setIntervals(response.data);
       } catch (error) {
-        console.error('Error fetching intervals:', error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     };
 
@@ -119,10 +125,12 @@ const ParametrageTemps = () => {
         fetchIntervals();
       }
     } catch (error) {
-      console.error('Error creating interval:', error);
       setAlertType('error');
       setAlertMessage(error.response.data);
       setShowAlert(true);
+      if (error.response && error.response.status === 401) {
+        history.push('/401');
+      }
     }
   };
 
@@ -136,6 +144,9 @@ const ParametrageTemps = () => {
         setAlertType('error');
         setAlertMessage(error.data);
         setShowAlert(true);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     }
   };
@@ -200,12 +211,14 @@ const ParametrageTemps = () => {
           setIsEditing(false);
         }
       } catch (error) {
-        console.error('Error updating appointment:', error);
+        if (error.response && error.response.status === 401) {
+          history.push('/401');
+        }
       }
     };
     
     const isValidHourFormat = (heure) => {
-      const regex = /^(0[8-9]|1[0-9]):(00|30)$/;
+      const regex = /^(0[8-9]|1[0-8]):(00|30)$/;
       return regex.test(heure);
     };
 
@@ -253,6 +266,9 @@ const ParametrageTemps = () => {
               ) : (
                 <span>{rendezvousData.heure}</span>
               )}
+            </td>
+            <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-left min-w-140-px">
+              {rendezvousData.patient.telephone || "-"}
             </td>
             <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-3 text-center min-w-140-px">
               {rendezvousData.patient.telephone ? (
@@ -474,9 +490,17 @@ const ParametrageTemps = () => {
                 </th>
                 <th
                   className={
+                    "px-4 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100 "
+                  }
+                >
+                  Téléphone
+                </th>
+                <th
+                  className={
                     "px-4 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                   }
-                ></th>
+                >
+                </th>
               </tr>
             </thead>
             {outsideIntervalAppointments.map((appointment) => (
