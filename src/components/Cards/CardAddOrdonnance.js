@@ -310,7 +310,12 @@ export default function CardAddOrdonnance({ rendez }) {
           doc.setFont(undefined, 'normal');
           if (medication.posologie.split('-').length === 3) {
             const [part1, part2, part3] = medication.posologie.split('-');
+            if (part3.split('/').length === 3){
+            doc.text(`3 fois par ${part3.split('/')[2]} - matinée: ${part1}, après-midi: ${part2}, soir: ${part3.split('/')[0]}/${part3.split('/')[1]}, ${medication.quand.toLowerCase()}, pendant ${medication.pendant.toLowerCase()}`, 20, yOffset + 7);
+            }
+            else{
             doc.text(`3 fois par ${part3.split('/')[1]} - matinée: ${part1}, après-midi: ${part2}, soir: ${part3.split('/')[0]}, ${medication.quand.toLowerCase()}, pendant ${medication.pendant.toLowerCase()}`, 20, yOffset + 7);
+            }
         } else {
           doc.text(`${medication.posologie.split('/')[0]} par ${medication.posologie.split('/')[1]}, ${medication.quand.toLowerCase()}, pendant ${medication.pendant.toLowerCase()}`, 20, yOffset + 7);
         }
@@ -441,10 +446,10 @@ export default function CardAddOrdonnance({ rendez }) {
                 disabled={radioOption !== 2}
                 style={{ width: "15%" }}
               >
-                <option value="1fois">1 fois</option>
-                <option value="2fois">2 fois</option>
-                <option value="3fois">3 fois</option>
-                <option value="4fois">4 fois</option>
+                <option value="1 fois">1 fois</option>
+                <option value="2 fois">2 fois</option>
+                <option value="3 fois">3 fois</option>
+                <option value="4 fois">4 fois</option>
               </select>
             </div>
             <div className="flex relative mb-4 justify-center items-center">
