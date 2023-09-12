@@ -28,6 +28,7 @@ export default function ConsulterRdv(props) {
       if (error.response && error.response.status === 401) {
         history.push('/401');
       }
+      setIsRedirected(true);
     });
       if (rendez.heure) {
         apiInstance
@@ -39,6 +40,7 @@ export default function ConsulterRdv(props) {
           if (error.response && error.response.status === 401) {
             history.push('/401');
           }
+          setIsRedirected(true);
         });
       } else {
         apiInstance
@@ -50,6 +52,7 @@ export default function ConsulterRdv(props) {
           if (error.response && error.response.status === 401) {
             history.push('/401');
           }
+          setIsRedirected(true);
         });
       }
     }
