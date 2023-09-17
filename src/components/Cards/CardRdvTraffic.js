@@ -1,8 +1,6 @@
 import createApiInstance from "api/api";
 import useUserInfo from "api/useUserInfo";
 import { AuthContext } from "contexts/AuthContext";
-import { format } from "date-fns";
-import jsPDF from "jspdf";
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { differenceInMinutes } from "date-fns";
@@ -119,48 +117,6 @@ export default function CardRdvTraffic({shouldFetch}) {
     });
   };
 
-  const generatePDF = async (rendez) => {
-    try {
-      const response = await apiInstance.get(`/api/ordonnances/${rendez.ordonnance.id_ordonnance}`);
-      const ordonnance = response.data;
-        const currentDate = format(new Date(), "dd-MM-yyyy");
-        const doc = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        });
-        doc.setFontSize(16);
-        doc.text("Ordonnance Médicale", 105, 15, null, null, "center");
-        doc.setFontSize(12);
-        doc.text(`Date: ${currentDate}`, 20, 30);
-        doc.text(`Nom du patient: ${rendez.patient.nom}`, 20, 40);
-        doc.text(`Prénom du patient: ${rendez.patient.prenom}`, 20, 50);
-        doc.setLineWidth(0.5);
-        doc.line(20, 55, 190, 55);
-        doc.setFontSize(14);
-        doc.text("Médicaments:", 20, 65);
-        let yOffset = 75;
-  
-        ordonnance.ordonnanceMedicaments.forEach((medication) => {
-          doc.setFontSize(12);
-          doc.text(`Médicament: ${medication.medicament.nom}`, 20, yOffset);
-          doc.text(`Posologie: ${medication.posologie}`, 20, yOffset + 10);
-          doc.text(`Quand: ${medication.quand}`, 20, yOffset + 20);
-          doc.text(`Pendant: ${medication.pendant}`, 20, yOffset + 30);
-          yOffset += 50;
-        });
-  
-        const pdfName = `ordonnance_${rendez.patient.nom}_${rendez.patient.prenom}_${currentDate}.pdf`;
-        doc.save(pdfName);
-        
-    } catch (error) {
-      window.alert("Pas d'ordonnance pour ce patient !");
-      if (error.response && error.response.status === 401) {
-        history.push('/401');
-      }
-    }
-  };
-
   const userInfo = useUserInfo();
 
   const isDocteur = userInfo.some(
@@ -262,16 +218,6 @@ export default function CardRdvTraffic({shouldFetch}) {
                 Consulter
               </button>
             )}
-            {isDocteur && rendez.statut === 1 && (
-              <button
-                className="bg-lightBlue-500 text-white active:bg-lightBlue-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
-                onClick={() => {
-                  generatePDF(rendez);
-                }}
-              >
-                Ordonnance
-              </button>
-            )}
                  <button
                     className="text-red-500 text-sm font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
                     onClick={() => handleDeleteSansRdv(rendez.id_sans_rdv)}
@@ -341,16 +287,6 @@ export default function CardRdvTraffic({shouldFetch}) {
                 }}
               >
                 Consulter
-              </button>
-            )}
-            {isDocteur && rendez.statut === 1 && (
-              <button
-                className="bg-lightBlue-500 text-white active:bg-red-500 text-xs font-bold uppercase px-2 py-1 rounded outline-none focus:outline-none ease-linear transition-all duration-150"
-                onClick={() => {
-                  generatePDF(rendez);
-                }}
-              >
-                Ordonnance
               </button>
             )}
           </th>

@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
   const formatOfDay = 'd';
   const formatOfWeek = 'eee';
   const formatOfWeekOptions = { locale: fr };
-  const CardRdv = ({ onClose, selectedDate, onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
+  const CardRdv = ({ onClose, selectedDate, onUpdate, onAddPatientClick, addedPatient}) => {
     const history = useHistory();
     const [timeSlots, setTimeSlots] = useState([]);
     
@@ -84,7 +84,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
       fetchRendezvousData();
       //eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDate,onSocialTrafficUpdate]);
+    }, [selectedDate,onUpdate]);
     
       const [selectedTypes, setSelectedTypes] = useState(generateTimeSlots(selectedDate).map(() => ''));
 
@@ -133,7 +133,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
       await apiInstance.post("/api/rendezvous", newRendezvous);
       const updatedData = await fetchUpdatedData();
       setRendezvousData(updatedData);
-      onSocialTrafficUpdate();        
+      onUpdate();        
     } catch (error) {
       if (error.response && error.response.status === 401) {
         history.push('/401');
@@ -172,7 +172,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
     if(confirmDelete){
     apiInstance.delete(`/api/rendezvous/${RdvId}`)
       .then((response) => {
-        onSocialTrafficUpdate();
+        onUpdate();
       })
       .catch((error) => {
         if (error.response && error.response.status === 401) {
@@ -442,7 +442,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
       );
     };
 
-  const CardCalendar = ({onSocialTrafficUpdate, onAddPatientClick, addedPatient}) => {
+  const CardCalendar = ({onUpdate, onAddPatientClick, addedPatient}) => {
       const history = useHistory();
       const [currentDate, setCurrentDate] = useState(new Date());
       const firstDay = dateFns.startOfMonth(currentDate);
@@ -494,7 +494,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
     useEffect(() => {
       fetchRendezvousCounts();
       // eslint-disable-next-line
-    }, [currentDate, onSocialTrafficUpdate]);
+    }, [currentDate, onUpdate]);
 
     const [eventsByDate, setEventsByDate] = useState({});
     const [eventsFetched, setEventsFetched] = useState(false);
@@ -595,7 +595,7 @@ import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
                   })
               ))}
             </div>
-        {showCardRdv && <CardRdv isOpen={showCardRdv} onClose={handleCloseCardRdv} selectedDate={selectedDate} onSocialTrafficUpdate={onSocialTrafficUpdate} onAddPatientClick={onAddPatientClick} addedPatient={addedPatient}/>}
+        {showCardRdv && <CardRdv isOpen={showCardRdv} onClose={handleCloseCardRdv} selectedDate={selectedDate} onUpdate={onUpdate} onAddPatientClick={onAddPatientClick} addedPatient={addedPatient}/>}
     </div>
 </div>                    
 );

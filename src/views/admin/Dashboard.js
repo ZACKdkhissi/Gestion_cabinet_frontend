@@ -8,12 +8,12 @@ import CardEvents from "components/Cards/CardEvents";
 
 export default function Dashboard() {
   const { token } = useContext(AuthContext);
-  const [shouldFetchSocialTraffic, setShouldFetchSocialTraffic] = useState(false);
+  const [shouldFetch, setShouldFetch] = useState(false);
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [addedPatient, setAddedPatient] = useState(null);
 
-  const handleSocialTrafficUpdate = () => {
-    setShouldFetchSocialTraffic(!shouldFetchSocialTraffic);
+  const handleUpdate = () => {
+    setShouldFetch(!shouldFetch);
   };
 
   if (!token) {
@@ -41,7 +41,7 @@ export default function Dashboard() {
           <div className="w-full xl:w-6/12 px-2">
             <div>
               <CardCalendar
-                onSocialTrafficUpdate={handleSocialTrafficUpdate}
+                onUpdate={handleUpdate}
                 onAddPatientClick={handleAddPatientClick}
                 addedPatient={addedPatient}
               />
@@ -51,7 +51,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="w-full xl:w-6/12">
-            <CardRdvTraffic shouldFetch={shouldFetchSocialTraffic} />
+            <CardRdvTraffic shouldFetch={shouldFetch} />
           </div>
         </div>
       )}

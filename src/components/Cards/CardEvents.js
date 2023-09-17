@@ -4,7 +4,7 @@ import createApiInstance from "api/api";
 import * as dateFns from "date-fns";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-export default function CardEvents() {
+export default function CardEvents({onUpdate}) {
   const { token } = useContext(AuthContext);
   const apiInstance = createApiInstance(token);
   const history = useHistory();
@@ -18,14 +18,14 @@ export default function CardEvents() {
     .catch((error) => {
     });
       // eslint-disable-next-line 
-  }, []);
+  }, [onUpdate]);
 
   const handleDeleteEvent = (EvnId) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce événement ?");
     if(confirmDelete){
     apiInstance.delete(`/api/events/${EvnId}`)
       .then((response) => {
-        setEvents(events.filter((evnt) => evnt.id !== EvnId));
+        window.location.reload();
       })
       .catch((error) => {
         if (error.response && error.response.status === 401) {
