@@ -35,11 +35,11 @@ export default function CardEvents({onUpdate}) {
   };
 
   const today = new Date();
-  const todayFormatted = dateFns.format(today, 'dd-MM-yyyy');
-
+  today.setHours(0, 0, 0, 0);
   const filteredEvents = events.filter((event) => {
-    const toDateFormatted = dateFns.format(dateFns.parse(event.to_date, 'dd-MM-yyyy', new Date()), 'dd-MM-yyyy');
-    return toDateFormatted >= todayFormatted;
+    const toDate = dateFns.parse(event.to_date, 'dd-MM-yyyy', new Date());
+    const eventDate = new Date(toDate);
+    return eventDate >= today;
   });
 
   const groupedEvents = filteredEvents.reduce((groups, event) => {
