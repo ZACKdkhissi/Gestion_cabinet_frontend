@@ -1,29 +1,29 @@
 {
-  "name": "notus-react",
-  "version": "1.1.0",
-  "description": "Notus React - A free Tailwind CSS and React UI Kit and Admin by Creative Tim.",
-  "repository": "https://github.com/creativetimofficial/notus-react",
-  "license": "MIT",
+  "name": "gestion-cabinet",
+  "version": "1.0.0",
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.15.3",
     "@popperjs/core": "2.9.1",
-    "@tailwindcss/forms": "0.2.1",
-    "autoprefixer": "10.2.5",
+    "@tailwindcss/forms": "^0.5.4",
     "axios": "^1.4.0",
     "chart.js": "2.9.4",
-    "gulp": "4.0.2",
-    "gulp-append-prepend": "1.0.8",
-    "postcss": "8.2.8",
+    "date-fns": "^2.30.0",
+    "jspdf": "^2.5.1",
     "react": "17.0.1",
+    "react-big-calendar": "^1.8.1",
     "react-dom": "17.0.1",
+    "react-icons": "^4.10.1",
+    "react-modal": "^3.16.1",
+    "react-pdf": "^7.3.3",
+    "react-resizable": "^3.0.5",
     "react-router": "5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
-    "tailwindcss": "2.0.4"
+    "react-scripts": "^5.0.1",
+    "react-select": "^5.7.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && gulp licenses",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm run build:tailwind && npm start",
@@ -46,5 +46,11 @@
   },
   "optionalDependencies": {
     "typescript": "4.2.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "webpack-dev-server": "^4.15.1"
   }
 }
